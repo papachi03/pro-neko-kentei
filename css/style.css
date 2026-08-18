@@ -360,7 +360,10 @@ body {
   position: absolute;
   left: 50%;
   top: 6%;
-  width: min(96%, 430px);
+  /* 横幅だけでなく「実際に使える縦の高さ(dvh)」も上限にすることで、
+   * Safari等のアドレスバー分だけ表示領域が短い実機でも、
+   * 猫が自動的に縮んで皿との間隔（余白）を確保できるようにする */
+  width: min(96%, 430px, 48dvh);
   aspect-ratio: 1211 / 1299;
   transform: translateX(-50%);
 }
