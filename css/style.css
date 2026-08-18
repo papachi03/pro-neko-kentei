@@ -518,10 +518,13 @@ body {
 }
 /* 尻尾：猫の右下。見た目より広い透明領域（食べ物領域と重ならない高さ）。
  * 尻尾のアンカー位置に合わせて座標を随時更新すること（js/animations.js HIP_ANCHOR/TAIL_PIVOT参照） */
+/* #hit-food を食べ物本体に絞った分、尻尾側の判定を少し広めに取り直し、
+ * 尻尾の見える先端（お皿寄りの位置）まで確実にカバーする。
+ * ただし下端はお皿の判定と一定の余白を保てる範囲にとどめる。 */
 #hit-tail {
-  left: 46%;
-  top: 64%;
-  width: 50%;
+  left: 42%;
+  top: 58%;
+  width: 56%;
   height: 15%;
   border-radius: 30px;
   z-index: 6;
@@ -606,11 +609,14 @@ body {
 }
 
 /* 食べ物タップ判定：皿全体＋少し上まで（尻尾領域とは重ならない） */
+/* 食べ物タップ判定：皿全体ではなく「食べ物そのもの」に絞る（尻尾側の領域を圧迫しないため）。
+ * transformは使わず（JS側の重なり自動調整と相性が悪いため）、.food-on-plate の実際の
+ * 表示位置を left/top/width/height（#serve-tray基準の%）で直接包む形にする。 */
 #hit-food {
-  left: -6%;
-  top: -34%;
-  width: 112%;
-  height: 78%;
+  left: 19%;
+  top: -10%;
+  width: 62%;
+  height: 62%;
   border-radius: 40px;
   z-index: 3;
 }

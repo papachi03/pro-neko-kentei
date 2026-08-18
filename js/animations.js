@@ -268,7 +268,13 @@ const Anim = {
     tray.classList.add("serving");
     if (foodItem && foodItem.displayName) this.showFoodName(foodItem.displayName);
     const ms = 320 * speedScale + 30;
-    setTimeout(onDone, ms);
+    setTimeout(() => {
+      // お皿のスライドイン完了後（＝実際の表示位置が確定した後）に判定の重なりチェックを行う。
+      // start()直後の一回だけだとお皿がまだ画面外にいる状態で計測してしまい判定漏れになるため、
+      // 食べ物が出るたびに毎回チェックする。
+      this._ensureHitAreaGap();
+      onDone();
+    }, ms);
   },
 
   /** 食品画像を差し替え、display.scale/x/yで見た目サイズを正規化する */
