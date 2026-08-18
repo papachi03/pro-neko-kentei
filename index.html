@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="ぷろ猫けんてい - 猫に与えてよい食べ物を見極める教育ゲーム">
+<title>ぷろ猫けんてい</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= タイトル画面 ================= -->
+  <section id="screen-title" class="screen active">
+    <div class="title-inner">
+      <img class="title-logo" src="assets/ui/title_logo.png" alt="ぷろ猫けんてい">
+      <p class="title-sub">猫に食べさせていい？いけない？<br>あなたの猫知識をけんてい！</p>
+
+      <div class="best-rank-box" id="title-best-rank">
+        <!-- JSで挿入 -->
+      </div>
+
+      <div class="difficulty-select">
+        <p class="diff-label">難易度をえらんでスタート</p>
+        <button class="btn btn-diff" data-mode="beginner">
+          <span class="diff-name">初級</span><span class="diff-desc">▶ プレイ</span>
+        </button>
+        <button class="btn btn-diff" data-mode="intermediate">
+          <span class="diff-name">中級</span><span class="diff-desc">🔒 準備中</span>
+        </button>
+        <button class="btn btn-diff" data-mode="advanced">
+          <span class="diff-name">上級</span><span class="diff-desc">🔒 準備中</span>
+        </button>
+      </div>
+
+      <div class="title-menu title-menu-icons">
+        <button class="icon-btn" id="btn-zukan" aria-label="図鑑"><img src="assets/ui/zukan.png" alt="図鑑"></button>
+        <button class="icon-btn" id="btn-ranking" aria-label="ランキング"><img src="assets/ui/ranking.png" alt="ランキング"></button>
+        <button class="icon-btn" id="btn-settings" aria-label="設定"><img src="assets/ui/setting.png" alt="設定"></button>
+      </div>
+
+      <div class="how-to">
+        <p>🍚 食べていい物 → <b>食べ物をタップ</b></p>
+        <p>⚡ あぶない物 → <b>尻尾をタップ</b>でバチコーン！</p>
+      </div>
+
+      <p class="placeholder-banner">⚠ 食品情報は公的資料・獣医師監修記事等をもとに作成していますが、正式な獣医師監修を受けたものではありません</p>
+    </div>
+  </section>
+
+  <!-- ================= ゲーム画面 ================= -->
+  <section id="screen-game" class="screen">
+    <header class="hud">
+      <div class="hud-box hud-score">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="hud-score">0</span>
+      </div>
+      <div class="hud-box hud-combo" id="hud-combo-box">
+        <span class="hud-label">COMBO</span>
+        <span class="hud-value" id="hud-combo">×0</span>
+      </div>
+      <div class="hud-box hud-life">
+        <span class="hud-label">LIFE</span>
+        <span class="hud-value" id="hud-life">
+          <span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span>
+        </span>
+      </div>
+      <button class="hud-box hud-mute" id="btn-mute" aria-label="音を消す/戻す">🔊</button>
+      <button class="hud-box hud-pause" id="btn-pause" aria-label="ポーズ">⏸</button>
+    </header>
+
+    <div class="stage" id="stage">
+      <!-- COMBO節目・エフェクト表示レイヤー（食べ物より上・中央上部のみ） -->
+      <div id="combo-banner-layer"></div>
+
+      <!-- 猫 -->
+      <div class="cat-wrap" id="cat-wrap">
+        <!-- 正式「ぷろ猫」: assets/cat/parts/ のPNGを tail → body → head の順に重ね合わせ。
+             デザイン基準は assets/cat/master/cat_master.png（描き直し禁止）。
+             レイヤー: 通常 head>body>tail ／ 攻撃中(.attacking) tail>head>body -->
+        <div id="cat-shadow"></div>
+        <img id="cat-tail" class="cat-part" src="assets/cat/parts/tail_idle.png" alt="" draggable="false">
+        <img id="cat-body" class="cat-part" src="assets/cat/parts/body.png" alt="" draggable="false">
+        <img id="cat-head" class="cat-part" src="assets/cat/parts/head_idle.png" alt="" draggable="false">
+        <!-- 尻尾タップ判定（見た目より広い透明領域）※判定はこの透明ボタンのみ -->
+        <button class="hit-area" id="hit-tail" aria-label="尻尾をタップ"></button>
+        <!-- 尻尾タップの操作ガイド（視覚サポートのみ・判定なし） -->
+        <img id="guide-tail" class="tap-guide" src="assets/ui/tap_sippo.png" alt="" aria-hidden="true">
+        <!-- 食事エフェクト（もぐ・ハート）出現位置の基準 -->
+        <div id="eat-effect-layer"></div>
+        <!-- バチコーン！インパクト -->
+        <div id="impact-effect"></div>
+      </div>
+
+      <!-- 皿を差し出す手（正式素材 assets/ui/hand_front.png：短い手首→手→皿のみ） -->
+      <div class="serve-tray" id="serve-tray">
+        <!-- 外側(#food-display): 位置・食べ進み・吹き飛びアニメーションを担当（従来通り）
+             内側(#food-display-img): 食品ごとの display.scale/x/y による見た目サイズ正規化を担当 -->
+        <div class="food-on-plate" id="food-display">
+          <img id="food-display-img" class="food-display-img" src="" alt="" draggable="false">
+        </div>
+        <img class="hand-front-img" src="assets/ui/hand_front.png" alt="" aria-hidden="true" draggable="false">
+        <!-- 食べ物タップ判定（見た目より広い透明領域）※判定はこの透明ボタンのみ -->
+        <button class="hit-area" id="hit-food" aria-label="食べ物をタップ"></button>
+        <!-- 食べ物タップの操作ガイド（視覚サポートのみ・判定なし） -->
+        <img id="guide-food" class="tap-guide" src="assets/ui/tap_food.png" alt="" aria-hidden="true">
+      </div>
+    </div>
+
+    <footer class="mission-bar">
+      <!-- 出された食べ物の名前表示（画面下側） -->
+      <div id="food-name-tag" class="food-name-tag"></div>
+      <div class="mission-row">
+        <div class="mission-text">
+          <span class="mission-icon">🐾</span>
+          <span id="mission-label">食べていい物だけ食べさせよう！</span>
+        </div>
+        <div class="mission-time">
+          <span class="hud-label">経過時間</span>
+          <span id="hud-time">00:00</span>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ================= ポーズ ================= -->
+  <div id="overlay-pause" class="overlay">
+    <div class="overlay-panel">
+      <h2>ポーズ中</h2>
+      <p class="pause-cat">😺 zzz…</p>
+      <div class="volume-control">
+        <button class="mute-toggle" id="btn-mute-pause" aria-label="音を消す/戻す">
+          <span id="mute-pause-icon">🔊</span>
+        </button>
+        <input type="range" id="volume-slider-pause" class="volume-slider" min="0" max="100" value="100" aria-label="音量">
+        <span class="volume-percent" id="volume-percent-pause">100%</span>
+      </div>
+      <button class="btn btn-primary" id="btn-resume">つづける</button>
+      <button class="btn btn-sub" id="btn-quit">タイトルへもどる</button>
+    </div>
+  </div>
+
+  <!-- ================= 検定結果画面 ================= -->
+  <section id="screen-result" class="screen">
+    <div class="result-inner">
+      <h2 class="result-title">ぷろ猫けんてい 結果</h2>
+
+      <div class="rank-cert" id="rank-cert">
+        <p class="cert-label">認定</p>
+        <p class="cert-rank" id="result-rank">－</p>
+        <p class="cert-title" id="result-rank-title"></p>
+        <div class="cert-paw">🐾</div>
+      </div>
+
+      <div id="rankup-banner" class="rankup-banner" hidden></div>
+
+      <table class="result-stats">
+        <tr><th>正答率</th><td id="result-accuracy">-%</td></tr>
+        <tr><th>最高COMBO</th><td id="result-combo">-</td></tr>
+        <tr><th>危険食品回避</th><td id="result-avoid">-</td></tr>
+        <tr><th>SCORE</th><td id="result-score">-</td></tr>
+      </table>
+
+      <div class="next-rank-box" id="result-next-rank"></div>
+
+      <div class="wrong-foods" id="wrong-foods-section">
+        <h3>今回まちがえた食べ物</h3>
+        <p class="placeholder-banner">⚠ 食品情報は公的資料・獣医師監修記事等をもとに作成していますが、正式な獣医師監修を受けたものではありません</p>
+        <div id="wrong-foods-list"></div>
+      </div>
+
+      <div class="result-buttons">
+        <button class="btn btn-primary" id="btn-retry">もういちど挑戦</button>
+        <button class="btn btn-sub" id="btn-result-zukan">📖 図鑑でふくしゅう</button>
+        <button class="btn btn-sub" id="btn-result-title">タイトルへ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 図鑑画面 ================= -->
+  <section id="screen-zukan" class="screen">
+    <div class="zukan-inner">
+      <h2 class="zukan-title">📖 ねこ食事図鑑</h2>
+      <p class="placeholder-banner">⚠ 食品情報は公的資料・獣医師監修記事等をもとに作成していますが、正式な獣医師監修を受けたものではありません</p>
+      <div class="zukan-grid" id="zukan-grid"></div>
+      <button class="btn btn-sub" id="btn-zukan-back">もどる</button>
+    </div>
+  </section>
+
+  <!-- ================= 図鑑詳細 ================= -->
+  <div id="overlay-food-detail" class="overlay">
+    <div class="overlay-panel food-detail-panel" id="food-detail-panel">
+      <!-- JSで挿入 -->
+    </div>
+  </div>
+
+  <!-- ================= きろく（ローカルランキング） ================= -->
+  <div id="overlay-ranking" class="overlay">
+    <div class="overlay-panel">
+      <h2>👑 あなたのきろく</h2>
+      <div id="ranking-body"></div>
+      <button class="btn btn-sub" id="btn-ranking-close">とじる</button>
+    </div>
+  </div>
+
+  <!-- ================= 設定 ================= -->
+  <div id="overlay-settings" class="overlay">
+    <div class="overlay-panel">
+      <h2>⚙️ 設定</h2>
+      <div class="volume-control">
+        <button class="mute-toggle" id="btn-mute-settings" aria-label="音を消す/戻す">
+          <span id="mute-settings-icon">🔊</span><span id="mute-settings-label">音ON</span>
+        </button>
+        <input type="range" id="volume-slider-settings" class="volume-slider" min="0" max="100" value="100" aria-label="音量">
+        <span class="volume-percent" id="volume-percent-settings">100%</span>
+      </div>
+      <button class="btn btn-sub" id="btn-settings-close">とじる</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/foods.js?v=13"></script>
+<script src="js/ranks.js?v=13"></script>
+<script src="js/storage.js?v=13"></script>
+<script src="js/sound.js?v=13"></script>
+<script src="js/animations.js?v=13"></script>
+<script src="js/ui.js?v=13"></script>
+<script src="js/game.js?v=13"></script>
+</body>
+</html>

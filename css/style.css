@@ -1,0 +1,1120 @@
+/* =========================================================
+ * ぷろ猫けんてい - スタイル
+ * スマートフォン縦画面(9:16前後)最優先・レスポンシブ対応
+ * ========================================================= */
+
+:root {
+  --bg: #faf6ec;
+  --panel: #fffdf5;
+  --ink: #4a4a4a;
+  --line: #d9d2c2;
+  --score-bg: #fdf3d0;
+  --score-border: #d8b84a;
+  --combo-bg: #fde3e8;
+  --combo-border: #e88ca0;
+  --combo-ink: #e05c7a;
+  --accent: #7b5fc4;
+  --safe: #6cae5e;
+  --caution: #d99a2b;
+  --danger: #d95c5c;
+  --radius: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: #e8e2d4;
+  color: var(--ink);
+  font-family: "Hiragino Maru Gothic ProN", "BIZ UDGothic", "Yu Gothic", "Meiryo", sans-serif;
+  /* ゲーム操作を邪魔する既定動作を抑止 */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 480px;
+  height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+  box-shadow: 0 0 24px rgba(0,0,0,0.15);
+}
+
+/* ---------- 画面切替 ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.screen.active { display: block; }
+
+/* ゲーム画面はスクロールさせない */
+#screen-game.active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* ---------- 共通ボタン ---------- */
+.btn {
+  display: block;
+  width: 100%;
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: #f9e9a8; border-color: var(--score-border); }
+.btn-sub { font-size: 15px; padding: 10px; }
+
+.placeholder-banner {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #a0763c;
+  background: #fdf3d9;
+  border: 1px dashed #d8b84a;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+/* =========================================================
+ * タイトル画面
+ * ========================================================= */
+.title-inner {
+  min-height: 100%;
+  padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* タイトルロゴ（正式画像・横幅いっぱいに合わせる） */
+.title-logo {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  height: auto;
+}
+.title-sub { text-align: center; font-size: 13px; line-height: 1.6; color: #7d7668; }
+
+.best-rank-box {
+  text-align: center;
+  font-size: 14px;
+  background: var(--panel);
+  border: 2px solid var(--score-border);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+.best-rank-box .brb-rank { font-size: 20px; font-weight: bold; color: #a0763c; }
+.best-rank-box .brb-progress { font-size: 12px; color: #7d7668; margin-top: 2px; }
+.progress-bar {
+  height: 8px; border-radius: 4px; background: #eee6d4;
+  overflow: hidden; margin-top: 4px;
+}
+.progress-bar > div { height: 100%; background: var(--score-border); border-radius: 4px; }
+
+.difficulty-select { display: flex; flex-direction: column; gap: 8px; }
+.diff-label { text-align: center; font-size: 14px; font-weight: bold; }
+.btn-diff {
+  display: flex; align-items: baseline; justify-content: center; gap: 10px;
+}
+.btn-diff .diff-name { font-size: 19px; }
+.btn-diff .diff-desc { font-size: 12px; font-weight: normal; color: #7d7668; }
+.btn-diff[data-mode="beginner"] { background: #eaf5e4; border-color: #a4cf95; }
+.btn-diff[data-mode="intermediate"] { background: #e4eef8; border-color: #92b8dd; }
+.btn-diff[data-mode="advanced"] { background: #f6e4ec; border-color: #dd92b4; }
+
+/* 準備中モード：押しても反応しないことが見た目で分かるよう無効化表示 */
+.btn-diff-disabled {
+  background: #ece7db !important;
+  border-color: var(--line) !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-diff-disabled:active { transform: none; }
+.btn-diff-disabled .diff-name { color: #a29c8c; }
+
+.title-menu { display: flex; gap: 8px; }
+.title-menu .btn { flex: 1; }
+
+/* 図鑑・ランキング・設定：正式アイコン画像ボタン（横並び3つ・スマホ幅に収まる） */
+.title-menu-icons { justify-content: center; gap: 10px; }
+.icon-btn {
+  flex: 1;
+  max-width: 110px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.icon-btn:active { transform: scale(0.95); }
+.icon-btn img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+}
+
+.how-to {
+  font-size: 13px; line-height: 1.9;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+/* =========================================================
+ * ゲーム画面 - HUD
+ * ========================================================= */
+.hud {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 1fr auto auto;
+  gap: 6px;
+  padding: calc(8px + env(safe-area-inset-top)) 10px 6px;
+}
+.hud-box {
+  border: 3px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+}
+.hud-label { font-size: 10px; letter-spacing: 1px; color: #8d8574; font-weight: bold; }
+.hud-value { font-size: 20px; font-weight: bold; line-height: 1.1; }
+.hud-score { background: var(--score-bg); border-color: var(--score-border); }
+.hud-combo { background: var(--combo-bg); border-color: var(--combo-border); }
+.hud-combo .hud-value { color: var(--combo-ink); }
+.hud-life .hud-value { font-size: 15px; letter-spacing: 1px; }
+.heart { color: #e8637e; }
+.heart.lost { color: #d9d2c2; }
+.hud-pause, .hud-mute {
+  font-size: 18px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+  padding: 4px 10px;
+}
+.hud-mute.is-muted { opacity: 0.5; }
+
+/* タイトル画面・きろく等にも置ける汎用ミュートボタン */
+.mute-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: var(--ink);
+  font-family: inherit;
+}
+.mute-toggle.is-muted { opacity: 0.6; }
+
+/* ボリュームスライダー（タイトル画面・ポーズ画面共通） */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 12px;
+}
+.volume-control .mute-toggle {
+  border: none;
+  background: transparent;
+  padding: 2px;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.volume-slider {
+  flex: 1 1 auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+.volume-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+.volume-percent {
+  font-size: 12px;
+  color: #8d8574;
+  min-width: 34px;
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+/* COMBO段階演出（枠の豪華さが段階的に変化） */
+.hud-combo.tier-1 { box-shadow: 0 0 6px rgba(232,140,160,0.5); }
+.hud-combo.tier-2 { box-shadow: 0 0 10px rgba(232,140,160,0.8); border-color: #e05c7a; }
+.hud-combo.tier-3 { box-shadow: 0 0 14px rgba(224,92,122,0.9), 0 0 26px rgba(255,215,90,0.6); border-color: #e05c7a; }
+.hud-combo.tier-4 {
+  box-shadow: 0 0 16px rgba(224,92,122,1), 0 0 32px rgba(255,215,90,0.9);
+  border-color: #d8b84a;
+  background: linear-gradient(135deg, #fde3e8, #fdf3d0);
+}
+
+/* COMBO数字ポンッ */
+@keyframes combo-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.55); }
+  70% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+.hud-combo .hud-value.pop { animation: combo-pop 0.35s ease-out; }
+
+/* COMBO喪失：ガクッと落ちて震える */
+@keyframes combo-drop {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  30% { transform: translateY(8px) scale(0.8); opacity: 0.6; }
+  45% { transform: translateY(8px) translateX(-3px) scale(0.8); }
+  60% { transform: translateY(8px) translateX(3px) scale(0.8); }
+  75% { transform: translateY(8px) translateX(-2px) scale(0.8); opacity: 0.5; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.hud-combo .hud-value.drop { animation: combo-drop 0.6s ease-out; }
+
+/* =========================================================
+ * ゲーム画面 - ステージ
+ * ========================================================= */
+.stage {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes stage-shake {
+  0%,100% { transform: translate(0,0); }
+  20% { transform: translate(-6px, 2px); }
+  40% { transform: translate(5px, -2px); }
+  60% { transform: translate(-4px, 1px); }
+  80% { transform: translate(3px, -1px); }
+}
+.stage.shake { animation: stage-shake 0.3s linear; }
+
+/* 正解時の軽い画面パルス（高COMBO演出） */
+@keyframes stage-pulse {
+  0% { box-shadow: inset 0 0 0 rgba(255,215,90,0); }
+  40% { box-shadow: inset 0 0 40px rgba(255,215,90,0.35); }
+  100% { box-shadow: inset 0 0 0 rgba(255,215,90,0); }
+}
+.stage.pulse { animation: stage-pulse 0.45s ease-out; }
+
+/* ---------- 猫（PNGパーツ合成方式） ----------
+ * デザイン基準: assets/cat/master/cat_master.png (1211x1299)
+ * レイヤー: 通常 head(3) > body(2) > tail(1)
+ *           攻撃中 .attacking で tail(5) > head(3) > body(2)
+ */
+.cat-wrap {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: min(96%, 430px);
+  aspect-ratio: 1211 / 1299;
+  transform: translateX(-50%);
+}
+.cat-part {
+  position: absolute;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+#cat-shadow {
+  position: absolute;
+  left: 6%;
+  bottom: -2.5%;
+  width: 86%;
+  height: 7%;
+  background: #ece4d2;
+  border-radius: 50%;
+  opacity: 0.85;
+  z-index: 0;
+}
+/* 尻尾の付け根アンカー: wrap座標 (70%, 66%) 付近の右腰1点に
+   idle / ready / swing / return すべての付け根を合わせる */
+#cat-head {
+  left: 8%;
+  top: 10%;
+  width: 76%;
+  z-index: 3;
+  transform-origin: 50% 62%;
+}
+#cat-body {
+  left: 17%;
+  bottom: -3%;
+  width: 62%;
+  z-index: 2;
+  transform-origin: 50% 100%;
+}
+/*
+ * 尻尾の付け根（猫の右腰アンカー）: wrap座標で left=68% top=65% の1点に固定。
+ * idle / ready / swing / return の4素材はすべて、この1点が
+ * それぞれの画像内ピボット座標(実測値)と一致するよう left/top/width と
+ * transform-origin を個別計算している（js/animations.js の TAIL_PIVOT 参照）。
+ * 数値は Anim._layoutTail() が算出しCSS変数として書き込むため、
+ * ここでは初期値（idle）のみを記載する。
+ */
+#cat-tail {
+  z-index: 1;
+}
+.cat-wrap.attacking #cat-tail { z-index: 5; }
+
+/* 待機：呼吸（胴体がわずかに上下・伸縮） */
+@keyframes idle-breath {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(1.5px) scaleY(0.985); }
+}
+.cat-idle #cat-body { animation: idle-breath 3s ease-in-out infinite; }
+
+/* 待機：頭もごくわずかに揺れる */
+@keyframes idle-head {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1.5px); }
+}
+.cat-idle #cat-head { animation: idle-head 3s ease-in-out infinite; }
+
+/* 待機：尻尾は下に垂らさず上向きに構える姿勢（タップ誤解を防ぐ）＋小さな揺れ */
+@keyframes idle-tail {
+  0%, 100% { transform: rotate(-125deg); }
+  50% { transform: rotate(-121deg); }
+}
+.cat-idle #cat-tail { animation: idle-tail 4s ease-in-out infinite; }
+
+/* ---------- 食べるアニメーション ---------- */
+/* STEP1 反応：頭を食べ物(下)へ近づける */
+@keyframes eat-lean {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3.5%); }
+}
+/* STEP3 モグモグ：頭が勢いよく上下（表情はJSがeat_01/eat_02を交互切替） */
+@keyframes eat-munch {
+  0%, 100% { transform: translateY(3.5%) rotate(0deg); }
+  25% { transform: translateY(5.5%) rotate(-1.6deg); }
+  50% { transform: translateY(3.2%) rotate(0deg); }
+  75% { transform: translateY(5.3%) rotate(1.6deg); }
+}
+@keyframes eat-body-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-1.1deg); }
+  75% { transform: rotate(1.1deg); }
+}
+.cat-eating-lean #cat-head { animation: eat-lean 0.18s ease-out forwards; }
+.cat-eating-munch #cat-head { animation: eat-munch 0.28s ease-in-out infinite; }
+.cat-eating-munch #cat-body { animation: eat-body-wiggle 0.28s ease-in-out infinite; }
+/* STEP4 満足して顔を上げる */
+@keyframes eat-finish {
+  0% { transform: translateY(3.5%); }
+  60% { transform: translateY(-1%); }
+  100% { transform: translateY(0); }
+}
+.cat-eating-finish #cat-head { animation: eat-finish 0.4s ease-out forwards; }
+
+/* ---------- 尻尾攻撃 ----------
+ * 素材切替とタイミングは animations.js の playTailAttack が制御。
+ * 予備動作: tail_ready（裏のまま右へ振りかぶり）
+ * スイング: tail_swing（.attacking で最前面・右→左へ振り抜く）
+ * 復帰: tail_return → tail_idle
+ */
+@keyframes tail-ready-pose {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-14deg); }
+}
+#cat-tail.phase-ready { animation: tail-ready-pose 0.12s ease-out forwards; }
+
+@keyframes tail-swing-arc {
+  0%   { transform: rotate(64deg); }
+  100% { transform: rotate(-2deg); }
+}
+#cat-tail.phase-swing {
+  animation: tail-swing-arc 0.16s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+/* ユーザー指示により時計回りへ20度追加回転（開始・終了とも+20deg） */
+@keyframes tail-return-pose {
+  0% { transform: rotate(2deg); opacity: 0.9; }
+  100% { transform: rotate(20deg); opacity: 1; }
+}
+#cat-tail.phase-return { animation: tail-return-pose 0.22s ease-out forwards; }
+
+/* 攻撃中の頭：参考(05)のとおり猫から見て右（画面左）へ傾け、さらに左へ10px移動 */
+.cat-attacking-head #cat-head {
+  transform: rotate(-10deg) translateY(1.5%) translateX(-10px);
+  transition: transform 0.1s ease-out;
+}
+
+/* ミス時：猫がぶるぶる */
+@keyframes cat-miss-shake {
+  0%,100% { transform: translateX(-50%); }
+  20% { transform: translateX(calc(-50% - 5px)); }
+  40% { transform: translateX(calc(-50% + 5px)); }
+  60% { transform: translateX(calc(-50% - 4px)); }
+  80% { transform: translateX(calc(-50% + 3px)); }
+}
+.cat-wrap.miss-shake { animation: cat-miss-shake 0.45s linear; }
+
+/* ---------- タップ判定領域（透明・見た目より広い） ---------- */
+.hit-area {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 尻尾：猫の右下。見た目より広い透明領域（食べ物領域と重ならない高さ）。
+ * 尻尾のアンカー位置に合わせて座標を随時更新すること（js/animations.js HIP_ANCHOR/TAIL_PIVOT参照） */
+#hit-tail {
+  left: 46%;
+  top: 64%;
+  width: 50%;
+  height: 24%;
+  border-radius: 30px;
+  z-index: 6;
+}
+/* デバッグ用: .debug-hit を body に付けると判定が見える */
+.debug-hit .hit-area { background: rgba(123,95,196,0.25); border: 1px dashed var(--accent); }
+
+/* ---------- 操作ガイド（tap_food.png / tap_sippo.png）----------
+ * あくまで視覚サポート。タップ判定は既存の透明 .hit-area が担う。
+ * ゲーム開始直後だけ表示し、数秒後に自然にフェードアウトする。 */
+.tap-guide {
+  position: absolute;
+  width: 78px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 1;
+  transition: opacity 0.7s ease-out;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+}
+.tap-guide.guide-hidden { opacity: 0; }
+
+/* 尻尾ガイド：矢印の先端が尻尾の見える位置を指すよう、尻尾の右上に配置 */
+#guide-tail {
+  right: calc(-6% + 25px - 7px);
+  top: calc(46% + 25px - 70px);
+  width: 64.8px;
+}
+/* 食べ物ガイド：皿の左上から矢印が右下（食べ物）を指す */
+#guide-food {
+  left: -18%;
+  top: calc(-62% + 70px);
+  width: 74px;
+}
+
+/* ---------- 皿を差し出す手 ---------- */
+.serve-tray {
+  position: absolute;
+  left: 50%;
+  bottom: calc(-1% + 20px);
+  width: min(66%, 285px);
+  transform: translateX(-50%) translateY(130%);
+  will-change: transform;
+}
+.serve-tray.serving {
+  transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.05);
+  transform: translateX(-50%) translateY(0);
+}
+.serve-tray.retreat {
+  transition: transform 0.25s ease-in;
+  transform: translateX(-50%) translateY(130%);
+}
+.hand-front-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.food-on-plate {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: clamp(92px, 28vw, 140px);
+  height: clamp(92px, 28vw, 140px);
+  transform: translate(-50%, -30%);
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,0.15));
+  z-index: 2;
+  will-change: transform;
+}
+/* 内側の画像：食品ごとの display.scale/x/y はJSがtransformで個別適用する。
+ * 外側(.food-on-plate)の位置・食べ進み・吹き飛びの動きとは独立して掛け合わさる */
+.food-display-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* 食べ物タップ判定：皿全体＋少し上まで（尻尾領域とは重ならない） */
+#hit-food {
+  left: -6%;
+  top: -34%;
+  width: 112%;
+  height: 78%;
+  border-radius: 40px;
+  z-index: 3;
+}
+
+/* 食べ物が食べられて減っていく */
+.food-on-plate.bite-1 { clip-path: inset(0 0 0 22%); opacity: 0.95; }
+.food-on-plate.bite-2 { clip-path: inset(0 18% 0 40%); opacity: 0.9; }
+.food-on-plate.bite-3 { transform: translate(-50%, -30%) scale(0.5); opacity: 0.55; }
+.food-on-plate.eaten { opacity: 0; transform: translate(-50%, -30%) scale(0.2); }
+
+/* ---------- 食べ物吹き飛び ---------- */
+@keyframes food-fly-away {
+  0% {
+    transform: translate(-50%, -30%) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(calc(-50% - 30vw), calc(-30% - 90px)) rotate(-360deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% - 130vw), calc(-30% - 140px)) rotate(-1080deg) scale(0.85);
+    opacity: 0.9;
+  }
+}
+.food-on-plate.fly-away {
+  animation: food-fly-away 0.55s cubic-bezier(0.15, 0.6, 0.4, 1) forwards;
+  z-index: 30;
+}
+
+/* 吹き飛びスピード線 */
+.speed-lines {
+  position: absolute;
+  pointer-events: none;
+  z-index: 29;
+  left: 8%;
+  width: 44%;
+  top: 0;
+  height: 30px;
+}
+.speed-lines span {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ink);
+  opacity: 0;
+}
+@keyframes speed-line {
+  0% { opacity: 0; transform: translateX(40px) scaleX(0.4); }
+  25% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateX(-90px) scaleX(1.2); }
+}
+.speed-lines.active span { animation: speed-line 0.4s ease-out forwards; }
+
+/* ---------- バチコーン！インパクト ---------- */
+#impact-effect {
+  position: absolute;
+  left: -2%;
+  top: 92%;
+  width: 90px;
+  height: 90px;
+  pointer-events: none;
+  display: none;
+  z-index: 31;
+}
+#impact-effect.active { display: block; }
+#impact-effect .impact-star {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  animation: impact-burst 0.35s ease-out forwards;
+}
+#impact-effect .impact-text {
+  position: absolute;
+  top: -26px;
+  left: -10px;
+  width: 160px;
+  font-size: 19px;
+  font-weight: bold;
+  color: #e0902a;
+  text-shadow: 2px 2px 0 #fff;
+  transform: rotate(-8deg);
+  animation: impact-text 0.5s ease-out forwards;
+  white-space: nowrap;
+}
+@keyframes impact-burst {
+  0% { transform: scale(0.2) rotate(0deg); opacity: 1; }
+  55% { transform: scale(1.35) rotate(20deg); opacity: 1; }
+  100% { transform: scale(1.05) rotate(28deg); opacity: 0; }
+}
+@keyframes impact-text {
+  0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  30% { transform: scale(1.2) rotate(-8deg); opacity: 1; }
+  75% { transform: scale(1) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 0; }
+}
+
+/* ---------- 食事エフェクト（もぐ・ハート） ---------- */
+#eat-effect-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.eat-particle {
+  position: absolute;
+  font-weight: bold;
+  animation: eat-particle 0.9s ease-out forwards;
+  will-change: transform, opacity;
+}
+.eat-particle.mogu { color: #e05c7a; font-size: 20px; text-shadow: 1px 1px 0 #fff; }
+.eat-particle.heart { font-size: 16px; }
+@keyframes eat-particle {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-8px) scale(1.1); }
+  100% { transform: translateY(-42px) scale(1); opacity: 0; }
+}
+
+/* ---------- 正解/ミス フィードバック ---------- */
+.judge-mark {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  transform: translate(-50%, -50%);
+  font-size: 114px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 40;
+  animation: judge-mark 0.55s ease-out forwards;
+  text-shadow: 3px 3px 0 rgba(255,255,255,0.9);
+}
+.judge-mark.ok { color: #e8637e; }
+.judge-mark.ng { color: #5c7fd9; }
+@keyframes judge-mark {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  30% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+/* ---------- スコア加算ポップ ---------- */
+.score-pop {
+  position: absolute;
+  font-size: 22px;
+  font-weight: bold;
+  color: #b8942e;
+  text-shadow: 1px 1px 0 #fff;
+  pointer-events: none;
+  z-index: 40;
+  animation: score-pop 0.8s ease-out forwards;
+}
+@keyframes score-pop {
+  0% { transform: translateY(0); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(-50px); opacity: 0; }
+}
+
+/* ---------- COMBO節目バナー ---------- */
+#combo-banner-layer {
+  position: absolute;
+  left: 0; right: 0;
+  top: 4%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 45;
+}
+.combo-banner {
+  font-weight: bold;
+  color: var(--combo-ink);
+  text-shadow: 2px 2px 0 #fff;
+  animation: combo-banner 1s ease-out forwards;
+  white-space: nowrap;
+}
+.combo-banner.size-1 { font-size: 22px; }
+.combo-banner.size-2 { font-size: 28px; }
+.combo-banner.size-3 { font-size: 34px; color: #e0902a; }
+.combo-banner.size-4 {
+  font-size: 40px;
+  background: linear-gradient(90deg, #e05c7a, #e0902a, #e05c7a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(2px 2px 0 #fff);
+}
+@keyframes combo-banner {
+  0% { transform: scale(0.3) translateY(10px); opacity: 0; }
+  25% { transform: scale(1.2) translateY(0); opacity: 1; }
+  55% { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(-14px); opacity: 0; }
+}
+
+/* キラキラ・肉球パーティクル */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 44;
+  animation: sparkle 0.8s ease-out forwards;
+  font-size: 18px;
+}
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  30% { transform: scale(1.2) rotate(40deg); opacity: 1; }
+  100% { transform: scale(0.6) rotate(90deg) translateY(-24px); opacity: 0; }
+}
+
+/* ---------- 食べ物の名前タグ（画面いちばん下・ミッションバー内） ---------- */
+.food-name-tag {
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--accent);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 0.25s ease-out, max-height 0.25s ease-out, margin 0.25s ease-out;
+}
+.food-name-tag.visible {
+  opacity: 1;
+  max-height: 24px;
+  margin-bottom: 4px;
+}
+.food-name-tag::before { content: "🍽 いま出ているのは："; color: #8d8574; font-weight: normal; margin-right: 4px; }
+
+/* ---------- ミッションバー ---------- */
+.mission-bar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin: 6px 10px calc(8px + env(safe-area-inset-bottom));
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 8px 12px;
+}
+.mission-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mission-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mission-time {
+  border-left: 2px solid var(--line);
+  padding-left: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+#hud-time { font-size: 22px; font-weight: bold; }
+
+/* =========================================================
+ * オーバーレイ共通
+ * ========================================================= */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 74, 74, 0.45);
+  z-index: 100;
+  padding: 20px;
+}
+.overlay.active { display: flex; }
+.overlay-panel {
+  width: 100%;
+  max-width: 380px;
+  max-height: 86dvh;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 3px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.pause-cat { font-size: 34px; }
+
+/* =========================================================
+ * 検定結果画面
+ * ========================================================= */
+.result-inner {
+  min-height: 100%;
+  padding: 20px 18px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.result-title { text-align: center; font-size: 24px; }
+
+.rank-cert {
+  position: relative;
+  text-align: center;
+  background: linear-gradient(160deg, #fffdf5, #fdf3d0);
+  border: 4px double var(--score-border);
+  border-radius: 16px;
+  padding: 18px;
+}
+.cert-label { font-size: 13px; letter-spacing: 6px; color: #a0763c; }
+.cert-rank { font-size: 46px; font-weight: bold; margin: 4px 0; }
+.cert-rank.dan { color: #b8432e; }
+.cert-title { font-size: 14px; color: #7d7668; }
+.cert-paw { position: absolute; right: 12px; bottom: 8px; font-size: 26px; opacity: 0.5; }
+
+@keyframes cert-appear {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.rank-cert.appear { animation: cert-appear 0.6s ease-out; }
+
+/* 昇級・昇段バナー */
+.rankup-banner {
+  text-align: center;
+  border-radius: 14px;
+  padding: 14px;
+  font-weight: bold;
+  border: 3px solid var(--combo-border);
+  background: var(--combo-bg);
+  animation: cert-appear 0.7s ease-out;
+}
+.rankup-banner .ru-head { font-size: 26px; color: var(--combo-ink); }
+.rankup-banner .ru-flow { font-size: 19px; margin-top: 6px; }
+.rankup-banner .ru-arrow { color: var(--combo-ink); margin: 0 8px; }
+.rankup-banner.dan-up {
+  border-color: #b8432e;
+  background: linear-gradient(135deg, #fde3e8, #fdf3d0);
+}
+.rankup-banner.dan-up .ru-head { font-size: 30px; color: #b8432e; }
+.rankup-banner.dan8 {
+  border: 4px double #b8432e;
+  background: linear-gradient(135deg, #fdf3d0, #fde3e8, #fdf3d0);
+}
+.rankup-banner.dan8 .ru-head { font-size: 32px; }
+.rankup-banner .ru-master { font-size: 15px; margin-top: 6px; letter-spacing: 3px; color: #a0763c; }
+
+.result-stats {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 15px;
+}
+.result-stats th, .result-stats td {
+  padding: 8px 14px;
+  border-bottom: 1px solid #eee6d4;
+}
+.result-stats th { text-align: left; color: #8d8574; font-weight: normal; width: 45%; }
+.result-stats td { text-align: right; font-weight: bold; font-size: 17px; }
+
+.next-rank-box {
+  font-size: 13px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+.wrong-foods h3 { font-size: 16px; margin-bottom: 4px; }
+.wrong-food-card {
+  text-align: left;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-left: 6px solid var(--danger);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+/* risk別の左ボーダー色：safe(緑)/caution(黄)/danger(赤・既定)。dangerとcautionを同一視しない */
+.wrong-food-card.was-safe { border-left-color: var(--safe); }
+.wrong-food-card.was-caution { border-left-color: var(--caution); }
+.wrong-food-card.was-danger { border-left-color: var(--danger); }
+.wrong-food-card .wf-head { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: bold; }
+.wrong-food-card .wf-emoji { width: 32px; height: 32px; object-fit: contain; flex: 0 0 auto; }
+.wrong-food-card .wf-verdict {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--danger);
+  white-space: nowrap;
+}
+.wrong-food-card.was-safe .wf-verdict { background: var(--safe); }
+.wrong-food-card.was-caution .wf-verdict { background: var(--caution); }
+.wrong-food-card .wf-why { margin-top: 4px; }
+.wrong-food-card .wf-link { color: var(--accent); font-size: 12px; margin-top: 2px; }
+.no-wrong {
+  text-align: center; font-size: 14px;
+  background: #eaf5e4; border: 2px solid #a4cf95; border-radius: var(--radius);
+  padding: 12px;
+}
+
+.result-buttons { display: flex; flex-direction: column; gap: 8px; }
+
+/* =========================================================
+ * 図鑑
+ * ========================================================= */
+.zukan-inner {
+  min-height: 100%;
+  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.zukan-title { text-align: center; font-size: 22px; }
+.zukan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.zukan-cell {
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+}
+.zukan-cell:active { transform: scale(0.95); }
+.zukan-cell .zc-emoji { width: 44px; height: 44px; object-fit: contain; display: block; margin: 0 auto; }
+.zukan-cell .zc-emoji-unknown { font-size: 30px; line-height: 44px; }
+.zukan-cell .zc-name { font-size: 11px; display: block; margin-top: 4px; line-height: 1.3; }
+.zukan-cell .zc-safety {
+  display: inline-block;
+  font-size: 10px;
+  color: #fff;
+  border-radius: 8px;
+  padding: 1px 7px;
+  margin-top: 3px;
+}
+.zukan-cell .zc-safety.safe { background: var(--safe); }
+.zukan-cell .zc-safety.caution { background: var(--caution); }
+.zukan-cell .zc-safety.danger { background: var(--danger); }
+.zukan-cell.unknown { opacity: 0.6; }
+.zukan-cell.unknown .zc-emoji { filter: grayscale(1) contrast(0.3); }
+
+/* 図鑑詳細 */
+.food-detail-panel { text-align: left; }
+.fd-head { display: flex; align-items: center; gap: 12px; }
+.fd-emoji { width: 64px; height: 64px; object-fit: contain; flex: 0 0 auto; }
+.fd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.fd-chip {
+  font-size: 11px;
+  background: #f1ece0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.fd-name { font-size: 20px; font-weight: bold; }
+.fd-category { font-size: 12px; color: #8d8574; }
+.fd-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 10px;
+  padding: 3px 12px;
+  margin-top: 4px;
+}
+.fd-verdict.safe { background: var(--safe); }
+.fd-verdict.caution { background: var(--caution); }
+.fd-verdict.danger { background: var(--danger); }
+.fd-section { font-size: 13px; line-height: 1.7; }
+.fd-section h4 {
+  font-size: 13px;
+  color: #a0763c;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+.fd-source { font-size: 11px; color: #8d8574; }
+
+/* きろく */
+#ranking-body { text-align: left; font-size: 14px; line-height: 2; }
+#ranking-body b { font-size: 18px; }
+
+/* =========================================================
+ * レスポンシブ微調整
+ * ========================================================= */
+@media (max-height: 640px) {
+  .hud-box { min-height: 44px; }
+  .hud-value { font-size: 17px; }
+  .cat-wrap { width: min(70%, 300px); }
+}
+@media (min-width: 768px) {
+  body { padding: 0; }
+}
