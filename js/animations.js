@@ -192,17 +192,13 @@ const Anim = {
   },
 
   /* ---------- 操作ガイド（tap_food.png / tap_sippo.png） ----------
-   * ゲーム開始時に表示し、数秒後に自然にフェードアウトする視覚サポート。
+   * ゲーム中はずっと表示したままにする視覚サポート（タップしやすいよう自動では消さない）。
    * タップ判定には一切関与しない（判定は既存の #hit-food / #hit-tail のまま）。 */
   _guideTimer: null,
-  showTapGuides(durationMs = 3200) {
+  showTapGuides() {
     if (this._guideTimer) clearTimeout(this._guideTimer);
     this.els.guideTail.classList.remove("guide-hidden");
     this.els.guideFood.classList.remove("guide-hidden");
-    this._guideTimer = setTimeout(() => {
-      this.els.guideTail.classList.add("guide-hidden");
-      this.els.guideFood.classList.add("guide-hidden");
-    }, durationMs);
   },
   hideTapGuidesNow() {
     if (this._guideTimer) clearTimeout(this._guideTimer);

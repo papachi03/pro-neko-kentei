@@ -165,7 +165,7 @@ const Game = {
     Anim.serveReset();
     UI.setPause(false);
     UI.show("game");
-    Anim.showTapGuides(); // 開始直後だけ操作ガイドを表示し、数秒後にフェードアウト
+    Anim.showTapGuides(); // 操作ガイドを表示（タップしやすいよう消さずに常時表示）
     // ゲーム画面が実際に表示されたこのタイミングで、尻尾/食べ物のタップ判定の
     // 重なりチェックを行う（非表示中はgetBoundingClientRectが0になり判定できないため）
     Anim._ensureHitAreaGap();
