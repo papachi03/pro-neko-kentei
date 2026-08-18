@@ -555,7 +555,7 @@ body {
 /* 食べ物ガイド：皿の左上から矢印が右下（食べ物）を指す */
 #guide-food {
   left: -18%;
-  top: calc(-62% + 70px);
+  top: calc(-62% + 85px);
   width: 74px;
 }
 
