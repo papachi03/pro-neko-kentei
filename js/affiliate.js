@@ -53,4 +53,34 @@ const AFFILIATE_PRODUCTS = [
     image: "https://m.media-amazon.com/images/I/713weKZMcQL._AC_SY355_.jpg",
     url: "https://www.amazon.co.jp/dp/B0H2M8297B/?tag=a01266-22",
   },
+  {
+    title: "ニャンとも清潔トイレ（約1ヵ月分猫砂・シート付）オープンタイプ",
+    image: "https://m.media-amazon.com/images/I/71PdP083EpL._AC_UF894,1000_QL80_FMwebp_.jpg",
+    url: "https://www.amazon.co.jp/dp/B0F2H68GQQ/?tag=a01266-22",
+  },
+  {
+    title: "モンプチ 毛玉ケア 5種のブレンド 2kg【Amazon.co.jp限定】",
+    image: "https://m.media-amazon.com/images/I/71aBFbEe+4L._AC_UF894,1000_QL80_FMwebp_.jpg",
+    url: "https://www.amazon.co.jp/dp/B084W34JW3/?tag=a01266-22",
+  },
+  {
+    title: "ピュリナ ワン グレインフリー チキン 1.6kg",
+    image: "https://m.media-amazon.com/images/I/71eePdEK0lL._AC_UF894,1000_QL80_FMwebp_.jpg",
+    url: "https://www.amazon.co.jp/dp/B07G715H52/?tag=a01266-22",
+  },
+  {
+    title: "Figaro CIAOちゅ〜る 贅沢バラエティ 14g×75本",
+    image: "https://m.media-amazon.com/images/I/81qXtY5xIdL._AC_UF894,1000_QL80_FMwebp_.jpg",
+    url: "https://www.amazon.co.jp/dp/B0DYDP8CWC/?tag=a01266-22",
+  },
+  {
+    title: "nyansの爪とぎ（とぎカスがでない）スタンダード Mサイズ",
+    image: "https://m.media-amazon.com/images/I/71+2tjsG0XL._AC_UF894,1000_QL80_FMwebp_AIweblab1381794,T1_.jpg",
+    url: "https://www.amazon.co.jp/dp/B0BSC574PB/?tag=a01266-22",
+  },
+  {
+    title: "猫壱 爪とぎ バリバリボード ライトブラウン",
+    image: "https://m.media-amazon.com/images/I/71fiV1-eH0L._AC_UF894,1000_QL80_FMwebp_.jpg",
+    url: "https://www.amazon.co.jp/dp/B087JJDYZ5/?tag=a01266-22",
+  },
 ];
