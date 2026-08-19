@@ -1,10 +1,11 @@
 /* =========================================================
  * ぷろ猫けんてい - 食品データ（初級編 正式版）
  * =========================================================
- * 初級編13食品は docs/foods-beginner-design.md の設計・調査を経て
- * 正式確定した内容です（環境省ガイドライン・ASPCA・Cornell Feline
- * Health Center・Merck Veterinary Manual・JAVMA・日本の獣医師監修
- * 記事等を根拠資料として使用）。
+ * 初級編は docs/foods-beginner-design.md の設計・調査を経て正式確定した
+ * 13食品に、拡張候補6食品（猫用ウェットフード／加熱卵／加熱白身魚／
+ * 生肉／長ねぎ／ココア）を正式採用し、計19食品構成としたもの
+ * （環境省ガイドライン・ASPCA・Cornell Feline Health Center・
+ * Merck Veterinary Manual・JAVMA・日本の獣医師監修記事等を根拠資料として使用）。
  *
  * 画像は正式イラスト（assets/foods/）を使用。ゲームロジックはこの
  * データ構造にのみ依存しており、本ファイルを差し替えるだけで
@@ -15,7 +16,7 @@
  * 意図的に分離している。
  * ========================================================= */
 
-const FOOD_DATA_STATUS = "verified-beginner"; // 初級13食品は正式確定済み
+const FOOD_DATA_STATUS = "verified-beginner"; // 初級19食品は正式確定済み
 
 // risk: "safe" | "caution" | "danger"（医学的安全性）
 // feedingRecommendation: "daily" | "occasional" | "avoid" | "never"（推奨頻度。riskとは別軸）
@@ -25,10 +26,11 @@ const FOOD_DATA_STATUS = "verified-beginner"; // 初級13食品は正式確定�
 //   nutrient_deficiency  … 栄養素の破壊・吸収阻害（毒ではない）
 //   digestive_upset      … 中毒ではなく消化器症状
 //   human_food_seasoning … 人間向けの味付け・塩分（添加物=毒という意味ではない）
+//   pathogen_risk        … 生食による細菌・寄生虫汚染のリスク（毒ではなく衛生上の注意）
 // display: { scale, x, y } … 食品ごとの画像占有率の違いを吸収し、皿の上での見た目サイズを揃える補正値
 
 const FOODS = [
-  /* ---------------- SAFE 5種 ---------------- */
+  /* ---------------- SAFE 8種 ---------------- */
   {
     id: "cat_food",
     displayName: "猫用総合栄養食",
@@ -147,7 +149,83 @@ const FOODS = [
     ],
   },
 
-  /* ---------------- CAUTION 3種 ---------------- */
+  {
+    id: "cat_wetfood",
+    displayName: "猫用ウェットフード",
+    image: "assets/foods/food_wet_cat_food.png",
+    display: { scale: 0.94, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 1,
+    risk: "safe",
+    riskCategories: [],
+    feedingRecommendation: "daily",
+    correctAction: "eat",
+    resultBadge: "食べてOK",
+    shortMessage: ["正解！", "猫用フードはカリカリだけじゃないよ。", "ウェットタイプも総合栄養食ならOK。"],
+    summary: "猫用に作られたウェットタイプの総合栄養食です。カリカリ（ドライ）と同じく主食にできます。",
+    detail: "猫用フードには乾燥した「カリカリ」だけでなく、水分の多いウェットタイプも"
+      + "あります。パッケージに「総合栄養食」と表示されていれば、ドライ・ウェットの"
+      + "どちらでも主食として与えられます。水分摂取が増える点もメリットです。",
+    mainRisks: [],
+    careTips: ["「総合栄養食」の表示を確認する", "開封後は早めに使い切る"],
+    emergencyAdvice: "",
+    sources: [
+      { organization: "環境省", title: "飼い主のためのペットフード・ガイドライン ～犬・猫の健康を守るために～", url: "https://www.env.go.jp/nature/dobutsu/aigo/2_data/pamph/petfood_guide_1808.html", checkedAt: "2026-08-19" },
+    ],
+  },
+  {
+    id: "egg_cooked",
+    displayName: "加熱した卵（十分加熱・味付けなし）",
+    image: "assets/foods/food_egg_cooked.png",
+    display: { scale: 1.03, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 3,
+    risk: "safe",
+    riskCategories: [],
+    feedingRecommendation: "occasional",
+    correctAction: "eat",
+    resultBadge: "食べてOK",
+    shortMessage: ["正解！", "十分に加熱した卵は食べられるよ。", "生卵とは分けて考えてね。"],
+    summary: "十分に加熱し、味付けをしていない卵は良質なたんぱく源として補助的に与えられます。",
+    detail: "生卵は、サルモネラ菌による食中毒のリスクに加え、卵白に含まれるアビジンが"
+      + "ビオチン（皮膚・被毛に関わるビタミン）の吸収を妨げる可能性が指摘されています。"
+      + "十分に加熱することで菌は死滅し、アビジンの働きも失われるため、加熱・味付け"
+      + "なしの卵は補助的に与えられる食品になります。ゆで卵やスクランブルエッグ"
+      + "（味付けなし）などが適しています。",
+    mainRisks: [],
+    careTips: ["必ず十分に加熱する（半熟・生は避ける）", "味付け・油を使わない", "少量に留める"],
+    emergencyAdvice: "",
+    sources: [
+      { organization: "獣医師監修記事（複数・独立）", title: "猫と卵（生卵・加熱卵の違い）に関する解説記事各種", url: "", checkedAt: "2026-08-19" },
+    ],
+  },
+  {
+    id: "whitefish_cooked",
+    displayName: "加熱した白身魚（味付けなし・骨なし）",
+    image: "assets/foods/food_whitefish_cooked.png",
+    display: { scale: 0.98, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 3,
+    risk: "safe",
+    riskCategories: [],
+    feedingRecommendation: "occasional",
+    correctAction: "eat",
+    resultBadge: "食べてOK",
+    shortMessage: ["正解！", "加熱・味付けなし・骨なしの白身魚も食べられるよ。", "魚は種類より「状態」が大事。"],
+    summary: "味付けをせず十分に加熱し、骨を取り除いた白身魚は鮭と同様に補助的に与えられます。",
+    detail: "鮭だけでなく、タラ等の白身魚も条件付きで安全になる代表例です。生の魚介類に"
+      + "含まれるチアミナーゼ（ビタミンB1を壊す酵素）は加熱で失活するため、"
+      + "加熱済み・味付けなし・骨なしという条件がそろえば補助的に与えられます。"
+      + "「魚の種類」ではなく「加熱してあるかどうか」を見る習慣が大切です。",
+    mainRisks: [],
+    careTips: ["必ず十分に加熱する", "骨を丁寧に取り除く", "味付き商品と混同しない"],
+    emergencyAdvice: "",
+    sources: [
+      { organization: "獣医師監修記事（複数）", title: "猫に魚を与える際の条件に関する解説", url: "", checkedAt: "2026-08-19" },
+    ],
+  },
+
+  /* ---------------- CAUTION 4種 ---------------- */
   {
     id: "cow_milk",
     displayName: "牛乳（人間用）",
@@ -229,7 +307,36 @@ const FOODS = [
     ],
   },
 
-  /* ---------------- DANGER 5種 ---------------- */
+  {
+    id: "raw_meat",
+    displayName: "生肉（味付けなし・加熱なし）",
+    image: "assets/foods/food_raw_meat.png",
+    display: { scale: 0.99, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 3,
+    risk: "caution",
+    riskCategories: ["pathogen_risk"],
+    feedingRecommendation: "avoid",
+    correctAction: "flick",
+    resultBadge: "注意が必要",
+    shortMessage: ["正解！", "「肉食＝生肉も平気」ではないよ。", "サルモネラ菌などの汚染リスクがあるんだ。"],
+    summary: "猫は肉食動物ですが、生肉にはサルモネラ菌等の食中毒菌や寄生虫が付着している可能性があります。",
+    detail: "「猫は肉食動物だから生肉でも平気」というのは誤解です。生肉には"
+      + "サルモネラ・カンピロバクター等の食中毒菌や、トキソプラズマ等の寄生虫が"
+      + "付着している可能性があり、猫自身が体調を崩すだけでなく、飼い主への"
+      + "感染（人獣共通感染症）にもつながりえます。また、生肉だけを継続的に"
+      + "主食として与えると、タウリンなど必要な栄養素が偏るおそれもあります。"
+      + "これは「毒」による中毒ではなく、衛生面・栄養バランス面の注意です。",
+    mainRisks: ["食中毒菌・寄生虫による感染", "継続摂取時の栄養バランスの偏り"],
+    careTips: ["与えるなら加熱してから与える", "生肉を継続して主食にしない", "調理器具・手指の衛生に気をつける"],
+    emergencyAdvice: "食べた後に嘔吐・下痢・元気消失などの症状が見られる場合は獣医師に相談してください。",
+    sources: [
+      { organization: "Today's Veterinary Nurse（PMC掲載）", title: "Raw Meat-Based Diets for Cats and Dogs", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5644655/", checkedAt: "2026-08-19" },
+      { organization: "獣医師監修記事（複数）", title: "猫と生肉食（生食）のリスクに関する解説記事各種", url: "", checkedAt: "2026-08-19" },
+    ],
+  },
+
+  /* ---------------- DANGER 7種 ---------------- */
   {
     id: "onion",
     displayName: "玉ねぎ",
@@ -355,12 +462,69 @@ const FOODS = [
       { organization: "獣医師監修記事（複数・独立）", title: "猫とアルコール中毒に関する解説記事各種（ペトコト／PS保険／ねこのきもちWEB MAGAZINE／救急獣医師解説）", url: "", checkedAt: "2026-08-19" },
     ],
   },
+  {
+    id: "green_onion",
+    displayName: "長ねぎ",
+    image: "assets/foods/food_green_onion.png",
+    display: { scale: 0.93, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 3,
+    risk: "danger",
+    riskCategories: ["toxin"],
+    feedingRecommendation: "never",
+    correctAction: "flick",
+    resultBadge: "猫には与えない",
+    shortMessage: ["正解！", "長ねぎも玉ねぎと同じネギ属でNG！", "「ネギ類」というグループで覚えよう。"],
+    summary: "長ねぎは玉ねぎ・にんにくと同じネギ属で、同じ機序で赤血球を傷害し貧血を引き起こします。",
+    detail: "危険なのは玉ねぎだけではありません。長ねぎ（青ねぎ・ねぎ類）も玉ねぎ・"
+      + "にんにくと同じネギ属の植物で、含まれる有機チオ硫酸化合物が赤血球を"
+      + "酸化的に傷害し、溶血性貧血を引き起こします。加熱・乾燥しても毒性は"
+      + "消えません。「玉ねぎさえ避ければよい」ではなく「ネギ属（Allium属）は"
+      + "すべて危険」というグループで理解することが大切です。",
+    mainRisks: ["溶血性貧血", "血色素尿", "元気消失", "食欲不振"],
+    careTips: ["すき焼き・鍋料理の長ねぎに注意する", "薬味の刻みねぎも同様に危険", "汁だけでも与えない"],
+    emergencyAdvice: "誤食が疑われる場合は、自己判断で様子を見ず、獣医師・動物病院へ相談してください。",
+    sources: [
+      { organization: "Merck Veterinary Manual", title: "Garlic and Onion (Allium spp) Toxicosis in Animals", url: "https://www.merckvetmanual.com/toxicology/food-hazards/garlic-and-onion-allium-spp-toxicosis-in-animals", checkedAt: "2026-08-19" },
+      { organization: "ASPCA", title: "People Foods to Avoid Feeding Your Pets", url: "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets", checkedAt: "2026-08-19" },
+    ],
+  },
+  {
+    id: "cocoa",
+    displayName: "ココア（純ココアパウダー）",
+    image: "assets/foods/food_cocoa.png",
+    display: { scale: 0.95, x: 0, y: 0 },
+    level: "beginner",
+    difficultyLevel: 3,
+    risk: "danger",
+    riskCategories: ["toxin"],
+    feedingRecommendation: "never",
+    correctAction: "flick",
+    resultBadge: "猫には与えない",
+    shortMessage: ["正解！", "板チョコだけじゃなくココアもNG！", "むしろ粉末の方が成分が濃いんだ。"],
+    summary: "ココアパウダーはチョコレートと同じ原料（カカオ）由来で、テオブロミンの濃度はチョコレートより高い場合があります。",
+    detail: "「板チョコさえ避ければよい」というのは誤解です。ココアパウダーは"
+      + "チョコレートと同じカカオが原料で、中毒の原因となるテオブロミンを"
+      + "含みます。しかも純度の高いココアパウダーは、重量あたりのテオブロミン"
+      + "濃度がミルクチョコレートより高いことがあり、少量でも油断できません。"
+      + "焼き菓子作りのココア、ホットココアの粉末なども同じ「カカオ由来食品」"
+      + "として注意が必要です。",
+    mainRisks: ["嘔吐", "下痢", "興奮", "けいれん", "不整脈"],
+    careTips: ["製菓材料のココアパウダーを出しっぱなしにしない", "ホットココアの粉末も保管に注意する"],
+    emergencyAdvice: "食べた量や種類をメモし、すみやかに獣医師・動物病院に相談してください。",
+    sources: [
+      { organization: "Merck Veterinary Manual", title: "Chocolate Toxicosis in Animals", url: "https://www.merckvetmanual.com/toxicology/food-hazards/chocolate-toxicosis-in-animals", checkedAt: "2026-08-19" },
+      { organization: "ASPCA Pet Insurance", title: "Top 10 Unsafe Foods for Cats", url: "https://www.aspcapetinsurance.com/resources/top-10-unsafe-foods-for-cats/", checkedAt: "2026-08-19" },
+    ],
+  },
 ];
 
 /* =========================================================
  * 中級・上級編は現時点で未実装（データなし）。
  * 以下は将来の中級候補としての参考メモであり、ゲームには反映しない。
- *   - 生卵（卵白）／骨付き加熱鶏肉／長ねぎ／生の鶏骨
+ *   - 生卵（卵白）／骨付き加熱鶏肉／生の鶏骨
+ *   ※長ねぎは初級19食品へ正式採用済み（加熱した卵は初級のsafe食品として採用済み。
+ *     中級では「生卵」との対比教材として別途扱う想定）
  * 詳細は docs/foods-beginner-design.md 参照。
  * ========================================================= */
 
@@ -405,6 +569,7 @@ const RISK_CATEGORY_LABELS = {
   nutrient_deficiency: "🍽 栄養素の破壊・欠乏",
   digestive_upset: "😿 消化器の不調",
   human_food_seasoning: "🧂 人間用の味付け・塩分",
+  pathogen_risk: "🦠 細菌・寄生虫のリスク",
 };
 
 // feedingRecommendationの内部IDを日本語ラベルへ変換
