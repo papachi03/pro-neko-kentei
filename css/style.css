@@ -1096,21 +1096,64 @@ body {
 
 .result-buttons { display: flex; flex-direction: column; gap: 8px; }
 
-/* Amazonアソシエイトリンク（結果画面） */
+/* Amazonアソシエイトリンク（結果画面・商品カードの横スクロール） */
 .affiliate-box {
   margin: 4px 0;
-  padding: 10px;
+  padding: 10px 0 10px;
   background: #fff8ec;
   border: 2px dashed #d8b84a;
   border-radius: var(--radius);
-  text-align: center;
 }
-.btn-affiliate { text-decoration: none; text-align: center; box-sizing: border-box; }
+.affiliate-heading {
+  font-size: 13px;
+  font-weight: bold;
+  color: #8a6a3a;
+  margin: 0 12px 8px;
+}
+.affiliate-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 12px 2px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.affiliate-card {
+  flex: 0 0 auto;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: var(--ink);
+  scroll-snap-align: start;
+}
+.affiliate-card-img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.affiliate-card-title {
+  font-size: 10.5px;
+  line-height: 1.35;
+  margin-top: 4px;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .affiliate-disclosure {
   font-size: 10px;
   line-height: 1.4;
   color: #a0763c;
-  margin: 6px 0 0;
+  margin: 8px 12px 0;
+  text-align: center;
 }
 
 /* =========================================================

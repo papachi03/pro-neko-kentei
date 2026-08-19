@@ -26,6 +26,19 @@ const UI = {
       foodDetailOverlay: document.getElementById("overlay-food-detail"),
     };
     this._zukanReturnTo = "title";
+    this.renderAffiliateProducts();
+  },
+
+  /** 結果画面のAmazonアソシエイト商品カードを描画する（内容は固定・毎回同じなので初回のみ実行） */
+  renderAffiliateProducts() {
+    const scroll = document.getElementById("affiliate-scroll");
+    if (!scroll || typeof AFFILIATE_PRODUCTS === "undefined") return;
+    scroll.innerHTML = AFFILIATE_PRODUCTS.map((p) => `
+      <a class="affiliate-card" href="${p.url}" target="_blank" rel="noopener noreferrer sponsored">
+        <img class="affiliate-card-img" src="${p.image}" alt="" loading="lazy">
+        <span class="affiliate-card-title">${p.title}</span>
+      </a>
+    `).join("");
   },
 
   show(name) {
