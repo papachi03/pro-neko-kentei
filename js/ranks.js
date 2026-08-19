@@ -30,19 +30,19 @@ const RANKS = [
 
 // ---- 評価の重み（合計 1.0）----
 // 2026-08-19: 正答率は仕様上ミス3回までしか許されずほぼ97〜99%に張り付くため
-// 弁別力が低く、SCORE・COMBOの重みを大きく引き上げるよう調整。
+// 弁別力が低く、SCORE・COMBOの重みを大きく引き上げるよう再調整。
 const RANK_WEIGHTS = {
-  accuracy: 0.10,   // 正答率
-  difficulty: 0.20, // 問題難易度
-  score: 0.45,      // SCORE
-  combo: 0.25,      // 最大COMBO
+  accuracy: 0.05,   // 正答率
+  difficulty: 0.05, // 問題難易度
+  score: 0.75,      // SCORE
+  combo: 0.15,      // 最大COMBO
 };
 
 // 危険食品を食べさせてしまったミス1回あたりの減点（総合スコア100点満点中）
 const DANGER_FED_PENALTY = 8;
 
 // スコア・COMBOの正規化上限（これ以上は満点扱い）
-const RANK_SCORE_CAP = 200000;
+const RANK_SCORE_CAP = 100000;
 const RANK_COMBO_CAP = 200;
 
 // 評価に必要な最低問題数（少なすぎるプレイで高評価にならないための補正）
@@ -51,6 +51,18 @@ const RANK_MIN_QUESTIONS = 20;
 // 総合スコア(0-100)→ランクindex(0-15)のしきい値
 // RANK_THRESHOLDS[i] 以上で RANKS[i] に認定。
 const RANK_THRESHOLDS = [0, 12, 20, 28, 36, 44, 52, 60, 68, 74, 80, 85, 89, 93, 96, 99];
+
+/** 現在プレイ可能な（enabled:trueの）モードの中で最も高いdifficultyWeightを返す。
+ * 中級・上級が「準備中」の間は初級のdifficultyWeight(1.0)がそのまま返る。
+ * 中級・上級が有効化されたら自動的にそちらが基準になる。 */
+function _maxEnabledDifficultyWeight() {
+  let max = 1.0;
+  Object.keys(DIFFICULTY_MODES).forEach((key) => {
+    const m = DIFFICULTY_MODES[key];
+    if (m.enabled && m.difficultyWeight > max) max = m.difficultyWeight;
+  });
+  return max;
+}
 
 /**
  * プレイ結果から級位・段位を算出する。
@@ -68,7 +80,14 @@ function evaluateRank(stats) {
   const correct = Math.max(0, stats.correct | 0);
 
   const accuracy = total > 0 ? correct / total : 0;                 // 0-1
-  const difficultyNorm = Math.min(1, (stats.difficultyWeight - 1.0) / 0.5); // 初級0 / 中級0.5 / 上級1
+  // 難易度得点は「現在プレイ可能な最高難度モード」を満点(1.0)として正規化する。
+  // 中級・上級が「準備中」の今は初級=最高難度モードのため初級でも満額が入り、
+  // 初級だけでも理論上は八段まで狙える（中級・上級が有効化されたら
+  // 初級0 / 中級0.5 / 上級1.0 という元の差に自動的に戻る）。
+  const maxDiffWeight = _maxEnabledDifficultyWeight();
+  const difficultyNorm = maxDiffWeight > 1.0
+    ? Math.min(1, (stats.difficultyWeight - 1.0) / (maxDiffWeight - 1.0))
+    : 1.0;
   const scoreNorm = Math.min(1, stats.score / RANK_SCORE_CAP);      // 0-1
   const comboNorm = Math.min(1, stats.maxCombo / RANK_COMBO_CAP);   // 0-1
 
