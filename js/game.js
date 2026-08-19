@@ -21,6 +21,11 @@ const CONFIG = {
     { min: 5,  mult: 1.1 },
     { min: 0,  mult: 1.0 },
   ],
+  // COMBO継続ボーナス（1コンボごとの素点上乗せ率）。
+  // 0.001 = 10コンボで+1%、50コンボで+5%、100コンボで+10%、150で+15%、200で+20%…
+  // と連続的に増加し続ける（comboMultipliersのように30で頭打ちにならない）。
+  // 長いコンボを維持し続けるほどSCOREが伸び続けるようにするための係数。
+  comboScoreBonusPerCombo: 0.001,
   // 判断時間（ms）: 経過時間(秒)に応じて補間
   decisionTimeline: [
     { t: 0,   ms: 3000 },
@@ -333,8 +338,10 @@ const Game = {
   },
 
   _onCorrect(food) {
-    const mult = this._comboMultiplier(this.combo + 1);
-    const points = Math.round(CONFIG.baseScore * food.difficultyLevel * mult);
+    const newCombo = this.combo + 1;
+    const mult = this._comboMultiplier(newCombo);
+    const comboBonus = this._comboScoreBonus(newCombo);
+    const points = Math.round(CONFIG.baseScore * food.difficultyLevel * mult * comboBonus);
     this.score += points;
     this.combo++;
     if (this.combo > this.maxCombo) this.maxCombo = this.combo;
@@ -375,6 +382,12 @@ const Game = {
       if (combo >= m.min) return m.mult;
     }
     return 1.0;
+  },
+
+  /** COMBO継続ボーナス。comboMultiplierと違い上限なく増え続けるため、
+   * 長くCOMBOを伸ばすほどSCOREが伸び続ける（段位評価のSCORE比重を活かす） */
+  _comboScoreBonus(combo) {
+    return 1 + Math.max(0, combo) * CONFIG.comboScoreBonusPerCombo;
   },
 
   _retreatAndNext(speedScale, foodFlew = false) {

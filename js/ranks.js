@@ -29,19 +29,21 @@ const RANKS = [
 ];
 
 // ---- 評価の重み（合計 1.0）----
+// 2026-08-19: 正答率は仕様上ミス3回までしか許されずほぼ97〜99%に張り付くため
+// 弁別力が低く、SCORE・COMBOの重みを大きく引き上げるよう調整。
 const RANK_WEIGHTS = {
-  accuracy: 0.45,   // 正答率
-  difficulty: 0.25, // 問題難易度
-  score: 0.20,      // SCORE
-  combo: 0.10,      // 最大COMBO
+  accuracy: 0.10,   // 正答率
+  difficulty: 0.20, // 問題難易度
+  score: 0.45,      // SCORE
+  combo: 0.25,      // 最大COMBO
 };
 
 // 危険食品を食べさせてしまったミス1回あたりの減点（総合スコア100点満点中）
 const DANGER_FED_PENALTY = 8;
 
 // スコア・COMBOの正規化上限（これ以上は満点扱い）
-const RANK_SCORE_CAP = 30000;
-const RANK_COMBO_CAP = 40;
+const RANK_SCORE_CAP = 200000;
+const RANK_COMBO_CAP = 200;
 
 // 評価に必要な最低問題数（少なすぎるプレイで高評価にならないための補正）
 const RANK_MIN_QUESTIONS = 20;
