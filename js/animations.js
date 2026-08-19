@@ -104,39 +104,36 @@ const Anim = {
   },
 
   /** #hit-tail と #hit-food が重ならないよう、実測して動的に補正する。
-   * 表示領域が極端に短い端末では hit-tail を縮めるだけでは足りない場合があるため、
-   * 1) まず hit-tail の高さを最小32pxまで縮め、
-   * 2) それでも重なる場合は hit-food の上方向の広がりも合わせて縮める。 */
+   * 尻尾タップは実機でシビアになりやすいため #hit-tail を最優先の固定領域とし、
+   * 高さ・幅とも一切縮めない。重なりが出た場合は #hit-food 側だけを
+   * （尻尾の左端を避けるよう、右端→必要なら左端も）自動で縮めて避ける。 */
   _ensureHitAreaGap(minGapPx = 14) {
     const hitTail = document.getElementById("hit-tail");
     const hitFood = document.getElementById("hit-food");
     if (!hitTail || !hitFood) return;
-    // 一旦CSS既定値へ戻してから測り直す（前回の補正が残ったままだと正しく測れないため）
-    hitTail.style.height = "";
-    hitFood.style.top = "";
-    hitFood.style.height = "";
-    let tr = hitTail.getBoundingClientRect();
-    let fr = hitFood.getBoundingClientRect();
-    const horizontalOverlap = !(fr.right <= tr.left || tr.right <= fr.left);
-    if (!horizontalOverlap) return; // 左右が重ならない配置なら補正不要
-    if (fr.top - tr.bottom >= minGapPx) return; // すでに十分な余白がある
+    // hit-foodのみ一旦CSS既定値へ戻してから測り直す（前回の補正が残ったままだと正しく測れないため）
+    // hit-tailは常にCSS既定値のまま＝最優先領域として一切変更しない
+    hitFood.style.left = "";
+    hitFood.style.width = "";
+    const tr = hitTail.getBoundingClientRect();
+    const fr = hitFood.getBoundingClientRect();
+    const verticalOverlap = !(fr.bottom <= tr.top || tr.bottom <= fr.top);
+    if (!verticalOverlap) return; // 上下が重ならない配置なら補正不要
+    if (tr.left - fr.right >= minGapPx) return; // すでに尻尾の左に十分な余白がある
 
-    // STEP1: hit-tailの下端が (hit-foodの上端 - minGap) に来るよう高さを縮める（最低32px）
-    const MIN_TAIL_H = 32;
-    let neededBottom = fr.top - minGapPx;
-    let newTailH = neededBottom - tr.top;
-    hitTail.style.height = Math.max(MIN_TAIL_H, newTailH) + "px";
-    tr = hitTail.getBoundingClientRect();
-    if (fr.top - tr.bottom >= minGapPx) return; // これで解消したなら終了
-
-    // STEP2: それでも足りない場合、hit-foodの上端を下げて（上方向の広がりを縮めて）調整する
-    const MIN_FOOD_H = 60;
-    const parentTop = hitFood.offsetParent.getBoundingClientRect().top;
-    const neededFoodTopPx = tr.bottom + minGapPx - parentTop; // hitFoodの親要素基準のpx位置
-    const foodBottomPx = (fr.bottom - parentTop); // 下端は変えない
-    const newFoodH = Math.max(MIN_FOOD_H, foodBottomPx - neededFoodTopPx);
-    hitFood.style.top = (foodBottomPx - newFoodH) + "px";
-    hitFood.style.height = newFoodH + "px";
+    // hit-foodの右端を「尻尾の左端 - minGap」まで縮める（左端はできる限り動かさない）
+    const MIN_FOOD_W = 130; // お皿の食品を覆うのに必要な最低幅
+    const parentLeft = hitFood.offsetParent.getBoundingClientRect().left;
+    const newRightPx = tr.left - minGapPx - parentLeft;
+    let leftPx = fr.left - parentLeft;
+    let newWidth = newRightPx - leftPx;
+    if (newWidth < MIN_FOOD_W) {
+      // 幅が足りない場合は左端も詰めて最低幅を確保する
+      newWidth = MIN_FOOD_W;
+      leftPx = newRightPx - newWidth;
+    }
+    hitFood.style.left = leftPx + "px";
+    hitFood.style.width = newWidth + "px";
   },
 
   /* ---------- パーツ切替ヘルパー ---------- */
