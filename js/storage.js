@@ -11,7 +11,9 @@ const DEFAULT_SAVE = {
   highScore: 0,
   bestCombo: 0,
   bestAccuracy: 0,        // 0-1
-  bestRankIndex: -1,      // -1 = 未認定
+  bestRankIndex: -1,      // -1 = 未認定（全モード通算の最高段位。従来互換用に維持）
+  // モード別の最高段位。-1 = 未認定（中級・上級は未実装の間ずっと-1のまま＝「-」表示）
+  bestRankIndexByMode: { beginner: -1, intermediate: -1, advanced: -1 },
   history: [],            // 過去の認定結果（最新20件）
   discoveredFoods: [],    // 遭遇済み食品id（図鑑解放）
   settings: {},
@@ -36,6 +38,14 @@ const Storage = {
     if (!Array.isArray(this._cache.history)) this._cache.history = [];
     if (!Array.isArray(this._cache.discoveredFoods)) this._cache.discoveredFoods = [];
     if (typeof this._cache.settings !== "object" || !this._cache.settings) this._cache.settings = {};
+    // 旧バージョンのセーブデータ（bestRankIndexByModeが無い）でも壊れないよう補完
+    if (typeof this._cache.bestRankIndexByMode !== "object" || !this._cache.bestRankIndexByMode) {
+      this._cache.bestRankIndexByMode = { beginner: -1, intermediate: -1, advanced: -1 };
+    } else {
+      ["beginner", "intermediate", "advanced"].forEach((k) => {
+        if (typeof this._cache.bestRankIndexByMode[k] !== "number") this._cache.bestRankIndexByMode[k] = -1;
+      });
+    }
     return this._cache;
   },
 
@@ -79,6 +89,10 @@ const Storage = {
     if (maxCombo > s.bestCombo) { s.bestCombo = maxCombo; result.newBestCombo = true; }
     if (accuracy > s.bestAccuracy) { s.bestAccuracy = accuracy; }
     if (rankIndex > s.bestRankIndex) { s.bestRankIndex = rankIndex; result.newBestRank = true; }
+    // モード別の最高段位も更新（初級・中級・上級を別々に記録）
+    if (modeId && typeof s.bestRankIndexByMode[modeId] === "number" && rankIndex > s.bestRankIndexByMode[modeId]) {
+      s.bestRankIndexByMode[modeId] = rankIndex;
+    }
     s.history.unshift({
       date: new Date().toISOString(),
       score, maxCombo, accuracy, rankIndex, modeId, composite,

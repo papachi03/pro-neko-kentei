@@ -342,13 +342,21 @@ const UI = {
   openRanking() {
     const s = Storage.load();
     const body = document.getElementById("ranking-body");
-    const rank = s.bestRankIndex >= 0 ? RANKS[s.bestRankIndex] : null;
+    // モード別の最高段位（中級・上級は未実装の間ずっと「-」表示になる）。
+    // インライン1行にまとめると幅の狭い端末で単語の途中（例:「上級」）で
+    // 折り返されてしまうため、モードごとに1行ずつ改行して表示する。
+    const byMode = s.bestRankIndexByMode || {};
+    const modeRankLines = ["beginner", "intermediate", "advanced"].map((key) => {
+      const mode = DIFFICULTY_MODES[key];
+      const idx = byMode[key];
+      const label = (typeof idx === "number" && idx >= 0) ? RANKS[idx].label : "-";
+      return `　${mode.label}：<b>${label}</b>`;
+    }).join("<br>");
     body.innerHTML =
       `🏆 ハイスコア：<b>${s.highScore.toLocaleString()}</b><br>` +
       `🔥 最高COMBO：<b>${s.bestCombo}</b><br>` +
       `🎯 最高正答率：<b>${Math.round(s.bestAccuracy * 100)}%</b><br>` +
-      `📜 最高段位：<b>${rank ? rank.label : "未認定"}</b>` +
-      (rank ? `<br><small>${rank.title}</small>` : "");
+      `📜 最高段位：<br>${modeRankLines}`;
     this.els.rankingOverlay.classList.add("active");
   },
 };
