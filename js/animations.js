@@ -63,9 +63,23 @@ const TAIL_WIDTH = {
   tail_idle: 40, tail_ready: 40, tail_swing: 60, tail_return: 40,
 };
 
+/* ---------- COMBOマイルストーン演出：文言設定 ----------
+ * ここを書き換えるだけでCOMBO達成時のサブメッセージを変更できる。
+ * キーが存在しない到達値は「◯ COMBO!」のみ表示する
+ * （ただしLEVEL3=100の倍数だけは、個別文言が無い場合に既定文言を使う）。 */
+const COMBO_MILESTONE_MESSAGES = {
+  10: "いい調子！",
+  20: "その調子！",
+  30: "判断がはやい！",
+  50: "ぷろ猫級！",
+  100: "ぷろ猫マスター！",
+};
+const COMBO_LEVEL3_FALLBACK_MESSAGE = "ぷろ猫マスター！"; // 200,300…用の既定文言
+
 const Anim = {
   els: {},
   _munchTimer: null,
+  _lastMilestoneCombo: 0, // 同じCOMBO値でのマイルストーン演出二重発火を防ぐ
 
   init() {
     this.els = {
@@ -496,13 +510,15 @@ const Anim = {
     if (ok) Sound.play("seikai"); // ◯が出た瞬間に正解音を再生
   },
 
-  /* ---------- スコア加算ポップ ---------- */
+  /* ---------- スコア加算ポップ ----------
+   * 正解時の ◯ マーク（judge-mark、top:34%・114px）と重なって読みにくく
+   * ならないよう、◯ の下（見た目の下端より下）に表示する。 */
   showScorePop(points) {
     const pop = document.createElement("div");
     pop.className = "score-pop";
     pop.textContent = "+" + points;
     pop.style.left = (38 + Math.random() * 20) + "%";
-    pop.style.top = "40%";
+    pop.style.top = "54%";
     this.els.stage.appendChild(pop);
     setTimeout(() => pop.remove(), 850);
   },
@@ -518,6 +534,8 @@ const Anim = {
   },
 
   updateCombo(combo) {
+    // combo=0（ゲーム開始時・リセット時）は次のマイルストーンを必ず出せるようにする
+    if (combo === 0) this._lastMilestoneCombo = 0;
     const box = this.els.comboBox;
     const val = this.els.comboValue;
     val.textContent = "×" + combo;
@@ -537,27 +555,65 @@ const Anim = {
     val.classList.remove("pop", "drop");
     void val.offsetWidth;
     if (prevCombo >= 3) val.classList.add("drop");
+    this._lastMilestoneCombo = 0; // COMBOが切れたら次の周でも同じ値の演出を再度出せるようにする
   },
 
-  /** COMBO節目バナー（5/10/20/30…） */
+  /** COMBOマイルストーンの段階を返す（演出対象外は0）。
+   * 優先順位: 100の倍数 > 50の倍数 > 10の倍数（すべてcombo%10===0が前提）。 */
+  _comboMilestoneLevel(combo) {
+    if (combo <= 0 || combo % 10 !== 0) return 0;
+    if (combo % 100 === 0) return 3;
+    if (combo % 50 === 0) return 2;
+    return 1;
+  },
+
+  /** COMBOマイルストーン演出（10/20/30…10刻み、3段階）。
+   * ゲーム進行は止めず、pointer-events:noneの#combo-banner-layerへの
+   * オーバーレイ表示のみで完結させる（食品・尻尾タップは常に有効のまま）。 */
   showComboMilestone(combo) {
-    const tier = this.comboTierFor(combo);
-    if (tier === 0) return;
+    const level = this._comboMilestoneLevel(combo);
+    if (level === 0) return;
+    if (this._lastMilestoneCombo === combo) return; // 同じCOMBO値での二重発火防止
+    this._lastMilestoneCombo = combo;
+
     const layer = this.els.comboLayer;
     layer.innerHTML = "";
     const b = document.createElement("div");
-    b.className = "combo-banner size-" + tier;
-    b.textContent = combo + " COMBO!";
-    layer.appendChild(b);
-    setTimeout(() => b.remove(), 1050);
+    b.className = "combo-milestone lvl-" + level;
 
-    if (tier >= 2) this._spawnSparkles(tier >= 4 ? 8 : tier >= 3 ? 6 : 4, tier);
-    if (tier >= 4) this.pulseStage();
+    const main = document.createElement("div");
+    main.className = "combo-milestone-main";
+    main.textContent = combo + " COMBO" + (level >= 3 ? "!!" : "!");
+    b.appendChild(main);
+
+    const subText = COMBO_MILESTONE_MESSAGES[combo] || (level >= 3 ? COMBO_LEVEL3_FALLBACK_MESSAGE : "");
+    if (subText) {
+      const sub = document.createElement("div");
+      sub.className = "combo-milestone-sub";
+      sub.textContent = subText;
+      b.appendChild(sub);
+    }
+
+    layer.appendChild(b);
+    // CSS側のアニメーション時間（.combo-milestone.lvl-*）と揃える。
+    // お褒め言葉をしっかり読める余韻を優先し、長めに表示してからフェードアウトする。
+    const durationMs = level >= 3 ? 2600 : level >= 2 ? 2300 : 2000;
+    setTimeout(() => b.remove(), durationMs);
+
+    this._spawnMilestoneParticles(level);
+    if (level >= 2) this.pulseStage(); // LEVEL2以上のみ軽い画面フラッシュ
+    this._comboReactionBounce();
+
+    // 将来のSE追加用フック（combo_10.mp3 / combo_50.mp3 / combo_100.mp3）。
+    // 未配置の間はSound.play側で自動的に無音スキップされる（既存SEの流用はしない）。
+    const sfxName = level >= 3 ? "combo_100" : level >= 2 ? "combo_50" : "combo_10";
+    if (typeof Sound !== "undefined" && Sound.play) Sound.play(sfxName);
   },
 
-  _spawnSparkles(count, tier) {
+  _spawnMilestoneParticles(level) {
     const stage = this.els.stage;
-    const icons = tier >= 4 ? ["✨", "🐾", "💖", "⭐"] : tier >= 3 ? ["✨", "🐾", "⭐"] : ["✨", "⭐"];
+    const icons = level >= 3 ? ["✨", "🐾", "💖", "⭐"] : level >= 2 ? ["✨", "💖", "⭐"] : ["✨", "⭐"];
+    const count = level >= 3 ? 9 : level >= 2 ? 6 : 3;
     for (let i = 0; i < count; i++) {
       setTimeout(() => {
         const sp = document.createElement("span");
@@ -567,7 +623,18 @@ const Anim = {
         sp.style.top = (2 + Math.random() * 22) + "%";
         stage.appendChild(sp);
         setTimeout(() => sp.remove(), 850);
-      }, i * 70);
+      }, i * 60);
     }
+  },
+
+  /** COMBO到達時の猫の小さなリアクション。食事・尻尾攻撃アニメーション中は
+   * 邪魔しないよう、猫が完全にidle状態のときだけ実行する（安全に重ねられる場合のみ）。 */
+  _comboReactionBounce() {
+    const w = this.els.catWrap;
+    if (!w.classList.contains("cat-idle")) return;
+    w.classList.remove("combo-bounce");
+    void w.offsetWidth;
+    w.classList.add("combo-bounce");
+    setTimeout(() => w.classList.remove("combo-bounce"), 420);
   },
 };

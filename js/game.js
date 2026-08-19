@@ -339,10 +339,8 @@ const Game = {
     Anim.updateCombo(this.combo);
     Anim.showJudge(true);
     Anim.showScorePop(points);
-    // 節目演出（5/10/20/30/40…10刻み）
-    if (this.combo === 5 || (this.combo >= 10 && this.combo % 10 === 0)) {
-      Anim.showComboMilestone(this.combo);
-    }
+    // 節目演出（10/20/30…10刻み。判定・表示はanimations.js側のshowComboMilestoneに集約）
+    Anim.showComboMilestone(this.combo);
     // 節目の通知音（10/20/30…10刻み。100で1周し110からまたcombo01に戻る）
     Sound.playComboMilestone(this.combo);
     // 高COMBO時は正解のたびに軽いパルス

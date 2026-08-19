@@ -762,7 +762,10 @@ body {
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 
-/* ---------- スコア加算ポップ ---------- */
+/* ---------- スコア加算ポップ ----------
+ * 正解時に中央へ大きく出る ◯（.judge-mark, top:34%・114px）と重なって
+ * 「◯の中に文字がある」ように見え読みにくくなっていたため、
+ * ◯の下（judge-markの見た目の下端より下）から出るよう位置をずらす。 */
 .score-pop {
   position: absolute;
   font-size: 22px;
@@ -776,7 +779,7 @@ body {
 @keyframes score-pop {
   0% { transform: translateY(0); opacity: 0; }
   25% { opacity: 1; }
-  100% { transform: translateY(-50px); opacity: 0; }
+  100% { transform: translateY(-30px); opacity: 0; }
 }
 
 /* ---------- COMBO節目バナー ---------- */
@@ -789,18 +792,33 @@ body {
   pointer-events: none;
   z-index: 45;
 }
-.combo-banner {
+/* COMBOマイルストーン演出（LEVEL1=10刻み／LEVEL2=50刻み／LEVEL3=100刻み） */
+.combo-milestone {
+  text-align: center;
+}
+.combo-milestone-main {
   font-weight: bold;
   color: var(--combo-ink);
   text-shadow: 2px 2px 0 #fff;
-  animation: combo-banner 1s ease-out forwards;
   white-space: nowrap;
 }
-.combo-banner.size-1 { font-size: 22px; }
-.combo-banner.size-2 { font-size: 28px; }
-.combo-banner.size-3 { font-size: 34px; color: #e0902a; }
-.combo-banner.size-4 {
-  font-size: 40px;
+.combo-milestone-sub {
+  font-weight: bold;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+/* LEVEL1: 控えめ。ただし文字（お褒め言葉）をしっかり読める余韻を確保する */
+.combo-milestone.lvl-1 { animation: combo-milestone-pop-1 2.0s ease-out forwards; }
+.combo-milestone.lvl-1 .combo-milestone-main { font-size: 24px; }
+.combo-milestone.lvl-1 .combo-milestone-sub { font-size: 14px; color: #8a6a3a; }
+/* LEVEL2: 通常より豪華（金色・少し長め） */
+.combo-milestone.lvl-2 { animation: combo-milestone-pop-2 2.3s ease-out forwards; }
+.combo-milestone.lvl-2 .combo-milestone-main { font-size: 30px; color: #e0902a; }
+.combo-milestone.lvl-2 .combo-milestone-sub { font-size: 16px; color: #e0902a; }
+/* LEVEL3: 特別演出。グラデーション文字＋一番長め */
+.combo-milestone.lvl-3 { animation: combo-milestone-pop-3 2.6s ease-out forwards; }
+.combo-milestone.lvl-3 .combo-milestone-main {
+  font-size: 42px;
   background: linear-gradient(90deg, #e05c7a, #e0902a, #e05c7a);
   -webkit-background-clip: text;
   background-clip: text;
@@ -808,12 +826,41 @@ body {
   text-shadow: none;
   filter: drop-shadow(2px 2px 0 #fff);
 }
-@keyframes combo-banner {
-  0% { transform: scale(0.3) translateY(10px); opacity: 0; }
-  25% { transform: scale(1.2) translateY(0); opacity: 1; }
-  55% { transform: scale(1) translateY(0); opacity: 1; }
-  100% { transform: scale(1) translateY(-14px); opacity: 0; }
+.combo-milestone.lvl-3 .combo-milestone-sub { font-size: 18px; color: #e05c7a; }
+
+/* 「出現→静止して読める余韻→フェードアウト」の3フェーズ構成。
+ * 静止（hold）区間を全体の6〜7割程度確保し、文字が読める時間を優先する。 */
+@keyframes combo-milestone-pop-1 {
+  0% { transform: scale(0.5); opacity: 0; }
+  15% { transform: scale(1.15); opacity: 1; }
+  35% { transform: scale(1.0); opacity: 1; }
+  80% { transform: scale(1.0); opacity: 1; }
+  100% { transform: scale(1.0) translateY(-10px); opacity: 0; }
 }
+@keyframes combo-milestone-pop-2 {
+  0% { transform: scale(0.5); opacity: 0; }
+  15% { transform: scale(1.25); opacity: 1; }
+  35% { transform: scale(1.05); opacity: 1; }
+  82% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1.05) translateY(-12px); opacity: 0; }
+}
+@keyframes combo-milestone-pop-3 {
+  0% { transform: scale(0.4); opacity: 0; }
+  15% { transform: scale(1.4); opacity: 1; }
+  30% { transform: scale(1.1); opacity: 1; }
+  40% { transform: scale(1.15); opacity: 1; }
+  85% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1.1) translateY(-14px); opacity: 0; }
+}
+
+/* COMBOマイルストーン到達時の猫の小さなリアクション（idle時のみ適用） */
+@keyframes cat-combo-bounce {
+  0% { transform: translateX(-50%) translateY(0); }
+  30% { transform: translateX(-50%) translateY(-10px); }
+  60% { transform: translateX(-50%) translateY(2px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+.cat-wrap.combo-bounce { animation: cat-combo-bounce 0.4s ease-out; }
 
 /* キラキラ・肉球パーティクル */
 .sparkle {
