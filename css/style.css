@@ -1096,6 +1096,23 @@ body {
 
 .result-buttons { display: flex; flex-direction: column; gap: 8px; }
 
+/* Amazonアソシエイトリンク（結果画面） */
+.affiliate-box {
+  margin: 4px 0;
+  padding: 10px;
+  background: #fff8ec;
+  border: 2px dashed #d8b84a;
+  border-radius: var(--radius);
+  text-align: center;
+}
+.btn-affiliate { text-decoration: none; text-align: center; box-sizing: border-box; }
+.affiliate-disclosure {
+  font-size: 10px;
+  line-height: 1.4;
+  color: #a0763c;
+  margin: 6px 0 0;
+}
+
 /* =========================================================
  * 図鑑
  * ========================================================= */
