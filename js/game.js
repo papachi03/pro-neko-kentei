@@ -343,6 +343,8 @@ const Game = {
     if (this.combo === 5 || (this.combo >= 10 && this.combo % 10 === 0)) {
       Anim.showComboMilestone(this.combo);
     }
+    // 節目の通知音（10/20/30…10刻み。100で1周し110からまたcombo01に戻る）
+    Sound.playComboMilestone(this.combo);
     // 高COMBO時は正解のたびに軽いパルス
     if (Anim.comboTierFor(this.combo) >= 3) Anim.pulseStage();
   },

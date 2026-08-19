@@ -21,6 +21,8 @@ const Sound = {
     mogumogu: 0.3,
     hazure: 0.3,
     seikai: 0.4,
+    combo01: 0.4, combo02: 0.4, combo03: 0.4, combo04: 0.4, combo05: 0.4,
+    combo06: 0.4, combo07: 0.4, combo08: 0.4, combo09: 0.4, combo10: 0.45,
   },
 
   init() {
@@ -34,6 +36,13 @@ const Sound = {
     this.sfx.mogumogu = this._makeSfx("assets/sounds/mogumogu.wav", this.BASE_VOLUME.mogumogu);
     this.sfx.hazure = this._makeSfx("assets/sounds/hazure.mp3", this.BASE_VOLUME.hazure);
     this.sfx.seikai = this._makeSfx("assets/sounds/seikai.mp3", this.BASE_VOLUME.seikai);
+    // COMBO節目演出音：combo01〜combo10。10コンボごとに進み、100コンボ(combo10)で
+    // 1周し、110コンボからまたcombo01に戻る（100刻みで演出が「戻ってくる」ことで
+    // 100コンボ到達の達成感を出す仕組み）
+    for (let i = 1; i <= 10; i++) {
+      const key = "combo" + String(i).padStart(2, "0");
+      this.sfx[key] = this._makeSfx("assets/sounds/" + key + ".mp3", this.BASE_VOLUME[key]);
+    }
     this._applyVolumes();
   },
 
@@ -103,6 +112,15 @@ const Sound = {
       s.el.volume = s.volume;
       s.el.play().catch(() => {});
     } catch (e) { /* 再生失敗は無視（ゲーム進行を止めない） */ }
+  },
+
+  /** COMBOが10の倍数（10,20,30…100,110,120…）に達した節目で呼ぶ。
+   * combo01〜combo10を10刻みで順に再生し、100（combo10）で1周、
+   * 110からはまたcombo01に戻る。 */
+  playComboMilestone(combo) {
+    if (combo < 10 || combo % 10 !== 0) return;
+    const idx = (((combo / 10) - 1) % 10) + 1;
+    this.play("combo" + String(idx).padStart(2, "0"));
   },
 
   /** 最初のユーザー操作で呼ぶ。以後は何度呼んでも安全（二重再生しない） */
