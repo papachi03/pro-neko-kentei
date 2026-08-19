@@ -64,8 +64,10 @@ const UI = {
   /** ミュートボタン・ボリュームスライダー(HUD・タイトル・ポーズ)の見た目をSoundの状態へ同期する */
   refreshMuteButtons() {
     const muted = Sound.muted;
-    const percent = Sound.getVolumePercent();
-    const icon = muted ? "🔇" : percent < 40 ? "🔉" : "🔊";
+    const bgmPercent = Sound.getBgmVolumePercent();
+    const sePercent = Sound.getSeVolumePercent();
+    const avgPercent = Math.round((bgmPercent + sePercent) / 2);
+    const icon = muted ? "🔇" : avgPercent < 40 ? "🔉" : "🔊";
 
     const hudBtn = document.getElementById("btn-mute");
     if (hudBtn) {
@@ -84,16 +86,20 @@ const UI = {
     if (pauseBtn) pauseBtn.classList.toggle("is-muted", muted);
     if (pauseIcon) pauseIcon.textContent = icon;
 
-    // スライダー・パーセント表示（ドラッグ中の自要素は更新しない）
-    const sliderVal = muted ? 0 : percent;
+    // スライダー・パーセント表示（ドラッグ中の自要素は更新しない）。
+    // ミュート中は見た目上0%表示にするが、実際のスライダー値（bgmVolume/seVolume）は保持する。
+    const bgmVal = muted ? 0 : bgmPercent;
+    const seVal = muted ? 0 : sePercent;
     [
-      ["volume-slider-settings", "volume-percent-settings"],
-      ["volume-slider-pause", "volume-percent-pause"],
-    ].forEach(([sliderId, pctId]) => {
+      ["volume-slider-bgm-settings", "volume-percent-bgm-settings", bgmVal],
+      ["volume-slider-se-settings", "volume-percent-se-settings", seVal],
+      ["volume-slider-bgm-pause", "volume-percent-bgm-pause", bgmVal],
+      ["volume-slider-se-pause", "volume-percent-se-pause", seVal],
+    ].forEach(([sliderId, pctId, val]) => {
       const slider = document.getElementById(sliderId);
       const pct = document.getElementById(pctId);
-      if (slider && document.activeElement !== slider) slider.value = sliderVal;
-      if (pct) pct.textContent = sliderVal + "%";
+      if (slider && document.activeElement !== slider) slider.value = val;
+      if (pct) pct.textContent = val + "%";
     });
   },
 

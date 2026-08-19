@@ -5,6 +5,9 @@
  * コード側の固定音量に加えて、プレイヤー自身がミュート/解除できる
  * UIコントロールを必ず用意する。設定はlocalStorageに保存し次回も維持する。
  * ブラウザの自動再生制限のため、BGMは最初のユーザー操作で開始する。
+ *
+ * 音量はBGMとSE（効果音）を別々のスライダーで調整できるよう、
+ * bgmVolume / seVolume の2系統を持つ（全体ミュートは共通で1つ）。
  * ========================================================= */
 
 const Sound = {
@@ -12,9 +15,10 @@ const Sound = {
   sfx: {},
   unlocked: false,
   muted: false,
-  masterVolume: 1.0, // 0.0〜1.0。ボリュームスライダーでユーザーが調整する係数
+  bgmVolume: 1.0, // 0.0〜1.0。BGMスライダーの係数
+  seVolume: 1.0,  // 0.0〜1.0。効果音スライダーの係数
 
-  // ベース音量（各音の「基準となる大きさ」。実際の再生音量は base × masterVolume）
+  // ベース音量（各音の「基準となる大きさ」。実際の再生音量は base × (bgmVolume|seVolume)）
   BASE_VOLUME: {
     bgm: 0.10,
     attack: 0.5,
@@ -27,7 +31,8 @@ const Sound = {
 
   init() {
     this.muted = this._loadMutedPref();
-    this.masterVolume = this._loadVolumePref();
+    this.bgmVolume = this._loadVolumePref("soundVolumeBgm");
+    this.seVolume = this._loadVolumePref("soundVolumeSe");
 
     this.bgm = new Audio("assets/sounds/BGM.mp3");
     this.bgm.loop = true;
@@ -46,37 +51,54 @@ const Sound = {
     this._applyVolumes();
   },
 
-  /** 全ての音量（BGM・SFXの.volume）へ masterVolume を反映する */
+  /** BGM・SFXそれぞれの.volumeへ bgmVolume / seVolume を反映する */
   _applyVolumes() {
-    if (this.bgm) this.bgm.volume = this.BASE_VOLUME.bgm * this.masterVolume;
+    if (this.bgm) this.bgm.volume = this.BASE_VOLUME.bgm * this.bgmVolume;
     Object.keys(this.sfx).forEach((name) => {
-      this.sfx[name].volume = this.BASE_VOLUME[name] * this.masterVolume;
+      this.sfx[name].volume = this.BASE_VOLUME[name] * this.seVolume;
     });
   },
 
-  /** スライダーから呼ぶ。value: 0〜100 */
-  setVolume(percent) {
-    this.masterVolume = Math.max(0, Math.min(100, percent)) / 100;
+  /** BGMスライダーから呼ぶ。percent: 0〜100 */
+  setBgmVolume(percent) {
+    this.bgmVolume = Math.max(0, Math.min(100, percent)) / 100;
     this._applyVolumes();
-    this._saveVolumePref();
-    // 0%にしたら自動でミュート、1%以上に戻したらミュート解除
-    if (this.masterVolume === 0 && !this.muted) this.setMuted(true, { skipVolumeSync: true });
-    else if (this.masterVolume > 0 && this.muted) this.setMuted(false, { skipVolumeSync: true });
+    this._saveVolumePref("soundVolumeBgm", this.bgmVolume);
+    this._syncMuteWithVolumes();
   },
-  getVolumePercent() { return Math.round(this.masterVolume * 100); },
+  /** 効果音スライダーから呼ぶ。percent: 0〜100 */
+  setSeVolume(percent) {
+    this.seVolume = Math.max(0, Math.min(100, percent)) / 100;
+    this._applyVolumes();
+    this._saveVolumePref("soundVolumeSe", this.seVolume);
+    this._syncMuteWithVolumes();
+  },
+  getBgmVolumePercent() { return Math.round(this.bgmVolume * 100); },
+  getSeVolumePercent() { return Math.round(this.seVolume * 100); },
 
-  _loadVolumePref() {
+  /** BGM・SEの両方が0%になったら自動でミュートON、どちらかが1%以上に
+   * 戻ったらミュート解除する（単一スライダー時代の使い勝手を踏襲） */
+  _syncMuteWithVolumes() {
+    const bothZero = this.bgmVolume === 0 && this.seVolume === 0;
+    if (bothZero && !this.muted) this.setMuted(true, { skipVolumeSync: true });
+    else if (!bothZero && this.muted) this.setMuted(false, { skipVolumeSync: true });
+  },
+
+  _loadVolumePref(key) {
     try {
       const s = Storage.load();
-      const v = s.settings && s.settings.soundVolume;
-      return (typeof v === "number" && v >= 0 && v <= 1) ? v : 1.0;
+      const v = s.settings && s.settings[key];
+      if (typeof v === "number" && v >= 0 && v <= 1) return v;
+      // 旧バージョン（BGM/SE共通の単一音量）からの移行
+      const legacy = s.settings && s.settings.soundVolume;
+      return (typeof legacy === "number" && legacy >= 0 && legacy <= 1) ? legacy : 1.0;
     } catch (e) { return 1.0; }
   },
-  _saveVolumePref() {
+  _saveVolumePref(key, value) {
     try {
       const s = Storage.load();
       s.settings = s.settings || {};
-      s.settings.soundVolume = this.masterVolume;
+      s.settings[key] = value;
       Storage.save();
     } catch (e) { /* 保存できなくても続行 */ }
   },
@@ -145,11 +167,13 @@ const Sound = {
   setMuted(muted, opts) {
     this.muted = muted;
     this._saveMutedPref();
-    // ミュート解除時、音量が0のままだと無音に戻ってしまうため既定値へ戻す
-    if (!muted && this.masterVolume === 0 && !(opts && opts.skipVolumeSync)) {
-      this.masterVolume = 1.0;
+    // ミュート解除時、両方の音量が0のままだと無音に戻ってしまうため既定値へ戻す
+    if (!muted && this.bgmVolume === 0 && this.seVolume === 0 && !(opts && opts.skipVolumeSync)) {
+      this.bgmVolume = 1.0;
+      this.seVolume = 1.0;
       this._applyVolumes();
-      this._saveVolumePref();
+      this._saveVolumePref("soundVolumeBgm", this.bgmVolume);
+      this._saveVolumePref("soundVolumeSe", this.seVolume);
     }
     if (!this.bgm) return;
     if (muted) {

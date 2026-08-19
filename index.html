@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="description" content="ぷろ猫けんてい - 猫に与えてよい食べ物を見極める教育ゲーム">
 <title>ぷろ猫けんてい</title>
-<link rel="stylesheet" href="css/style.css?v=27">
+<link rel="stylesheet" href="css/style.css?v=28">
 </head>
 <body>
 <div id="app">
@@ -128,12 +128,20 @@
     <div class="overlay-panel">
       <h2>ポーズ中</h2>
       <p class="pause-cat">😺 zzz…</p>
-      <div class="volume-control">
+      <div class="volume-panel">
         <button class="mute-toggle" id="btn-mute-pause" aria-label="音を消す/戻す">
           <span id="mute-pause-icon">🔊</span>
         </button>
-        <input type="range" id="volume-slider-pause" class="volume-slider" min="0" max="100" value="100" aria-label="音量">
-        <span class="volume-percent" id="volume-percent-pause">100%</span>
+        <div class="volume-control">
+          <span class="volume-label">🎵 BGM</span>
+          <input type="range" id="volume-slider-bgm-pause" class="volume-slider" min="0" max="100" value="100" aria-label="BGM音量">
+          <span class="volume-percent" id="volume-percent-bgm-pause">100%</span>
+        </div>
+        <div class="volume-control">
+          <span class="volume-label">🔔 SE</span>
+          <input type="range" id="volume-slider-se-pause" class="volume-slider" min="0" max="100" value="100" aria-label="効果音の音量">
+          <span class="volume-percent" id="volume-percent-se-pause">100%</span>
+        </div>
       </div>
       <button class="btn btn-primary" id="btn-resume">つづける</button>
       <button class="btn btn-sub" id="btn-quit">タイトルへもどる</button>
@@ -207,12 +215,20 @@
   <div id="overlay-settings" class="overlay">
     <div class="overlay-panel">
       <h2>⚙️ 設定</h2>
-      <div class="volume-control">
+      <div class="volume-panel">
         <button class="mute-toggle" id="btn-mute-settings" aria-label="音を消す/戻す">
           <span id="mute-settings-icon">🔊</span><span id="mute-settings-label">音ON</span>
         </button>
-        <input type="range" id="volume-slider-settings" class="volume-slider" min="0" max="100" value="100" aria-label="音量">
-        <span class="volume-percent" id="volume-percent-settings">100%</span>
+        <div class="volume-control">
+          <span class="volume-label">🎵 BGM</span>
+          <input type="range" id="volume-slider-bgm-settings" class="volume-slider" min="0" max="100" value="100" aria-label="BGM音量">
+          <span class="volume-percent" id="volume-percent-bgm-settings">100%</span>
+        </div>
+        <div class="volume-control">
+          <span class="volume-label">🔔 SE</span>
+          <input type="range" id="volume-slider-se-settings" class="volume-slider" min="0" max="100" value="100" aria-label="効果音の音量">
+          <span class="volume-percent" id="volume-percent-se-settings">100%</span>
+        </div>
       </div>
       <button class="btn btn-sub" id="btn-settings-close">とじる</button>
     </div>
@@ -220,12 +236,12 @@
 
 </div>
 
-<script src="js/foods.js?v=29"></script>
-<script src="js/ranks.js?v=29"></script>
-<script src="js/storage.js?v=29"></script>
-<script src="js/sound.js?v=29"></script>
-<script src="js/animations.js?v=29"></script>
-<script src="js/ui.js?v=29"></script>
-<script src="js/game.js?v=29"></script>
+<script src="js/foods.js?v=30"></script>
+<script src="js/ranks.js?v=30"></script>
+<script src="js/storage.js?v=30"></script>
+<script src="js/sound.js?v=30"></script>
+<script src="js/animations.js?v=30"></script>
+<script src="js/ui.js?v=30"></script>
+<script src="js/game.js?v=30"></script>
 </body>
 </html>

@@ -109,9 +109,13 @@ const Game = {
     document.getElementById("btn-mute-settings").addEventListener("pointerdown", toggleMuteHandler);
     document.getElementById("btn-mute-pause").addEventListener("pointerdown", toggleMuteHandler);
 
-    const volumeSliderHandler = (e) => { Sound.setVolume(Number(e.target.value)); UI.refreshMuteButtons(); };
-    document.getElementById("volume-slider-settings").addEventListener("input", volumeSliderHandler);
-    document.getElementById("volume-slider-pause").addEventListener("input", volumeSliderHandler);
+    // BGM・効果音(SE)を別々のスライダーで調整（設定画面・ポーズ画面の両方に同じ構成）
+    const bgmSliderHandler = (e) => { Sound.setBgmVolume(Number(e.target.value)); UI.refreshMuteButtons(); };
+    const seSliderHandler = (e) => { Sound.setSeVolume(Number(e.target.value)); UI.refreshMuteButtons(); };
+    document.getElementById("volume-slider-bgm-settings").addEventListener("input", bgmSliderHandler);
+    document.getElementById("volume-slider-se-settings").addEventListener("input", seSliderHandler);
+    document.getElementById("volume-slider-bgm-pause").addEventListener("input", bgmSliderHandler);
+    document.getElementById("volume-slider-se-pause").addEventListener("input", seSliderHandler);
     document.getElementById("btn-resume").addEventListener("click", () => this.togglePause(false));
     document.getElementById("btn-quit").addEventListener("click", () => {
       this.togglePause(false);
